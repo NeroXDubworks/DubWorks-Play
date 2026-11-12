@@ -93,7 +93,7 @@ body:before{opacity:.06}
 .section-heading h2{font:600 clamp(23px,2.1vw,30px) 'Fredoka',sans-serif;letter-spacing:.1px}
 .section-arrow{font-size:23px;color:#d9d8ff}
 .section-subtitle{font:700 12px 'Nunito',sans-serif;color:#a2a3c7}
-.cards-track{gap:14px;grid-auto-columns:minmax(242px,1fr);padding:5px 1px 18px;overflow-y:visible;scrollbar-color:#514da6 transparent}
+.cards-track{gap:14px;grid-auto-columns:minmax(242px,1fr);padding:16px 4px 22px;overflow-y:visible;scrollbar-color:#514da6 transparent}
 .cards-track.featured-track{grid-auto-columns:minmax(242px,1fr)}
 .show-card{
   position:relative;aspect-ratio:1.75;border-radius:11px;
