@@ -31,6 +31,7 @@
   const saved = new Set(JSON.parse(localStorage.getItem('dw-play-favorites') || '[]'));
   let view = 'inicio'; let query = ''; let filter = 'Todos'; let heroIndex = 0; let toastTimeout;
   let currentProjectId = null; let detailsTab = 'episodios'; let returnView = 'inicio';
+  let selectedSeason = 1; let playerEpisode = null; let playerLastSave = 0;
   const main = document.getElementById('main-content');
   const modalLayer = document.getElementById('modal-layer');
   const modalContent = document.getElementById('modal-content');
@@ -39,6 +40,28 @@
   const safe = value => String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const getImage = p => p.image ? 'linear-gradient(90deg,rgba(6,11,24,.10),rgba(6,11,24,.12)),url("'+p.image.replace(/"/g,'%22')+'")' : 'radial-gradient(circle at 76% 30%, '+p.color+'ee, transparent 60%),linear-gradient(140deg,'+p.color+',#070d1e 90%)';
   const isSoon = p => ['Aguardando início','Planejamento','Stand-by'].includes(p.status);
+  // No cadastro inicial, a temporada ainda não é um campo do banco.
+  // Episódios sem metadado de temporada são agrupados provisoriamente na temporada 1.
+  const seasonNumber = e => Number.isSafeInteger(Number(e.season)) && Number(e.season)>0 ? Number(e.season) : 1;
+  const availableSeasons = p => [...new Set(p.episodes.map(seasonNumber))].sort((a,b)=>a-b);
+  const episodesInSeason = (p,season) => p.episodes.filter(e=>seasonNumber(e)===Number(season)).sort((a,b)=>Number(a.number)-Number(b.number));
+  const episodeFor = (p,season,num) => p?.episodes.find(e=>seasonNumber(e)===Number(season) && Number(e.number)===Number(num));
+  const validMediaUrl = url => typeof url==='string' && /^https:\/\/[^\s<>"']+$/i.test(url);
+  const isPlayable = e => Boolean(e && e.published===true && validMediaUrl(e.videoUrl));
+  const progressKey = (project,season,episode) => 'dw-play-progress:'+project+':'+season+':'+episode;
+  const getProgress = (project,season,episode) => {
+    try {const x=Number(localStorage.getItem(progressKey(project,season,episode)));return Number.isFinite(x)&&x>0?x:0;}
+    catch {return 0}
+  };
+  const saveProgress = (project,season,episode,seconds) => {
+    if(!Number.isFinite(seconds)||seconds<0)return;
+    try {localStorage.setItem(progressKey(project,season,episode),String(Math.floor(seconds)));}
+    catch {/* localStorage indisponível */ }
+  };
+  const formatClock = sec => {
+    const n=Math.max(0,Math.floor(Number(sec)||0));
+    return [Math.floor(n/3600),Math.floor(n%3600/60),n%60].filter((_,i)=>i>0||n>=3600).map(x=>String(x).padStart(2,'0')).join(':') || '00:00';
+  };
   const favorites = () => projects.filter(p=>saved.has(p.id));
   function card(p){return '<button class="show-card" data-open="'+safe(p.id)+'" aria-label="Ver detalhes de '+safe(p.title)+'"><span class="card-image" style="background-image:'+safe(getImage(p))+'"></span>'+(!p.image?'<span class="card-placeholder">DW</span>':'')+'<span class="card-shade"></span><span class="card-tag '+safe(p.tagClass||'')+'">'+safe(p.tag)+'</span><span class="card-text"><span class="card-title">'+safe(p.title)+'</span><span class="card-status">'+safe(p.genre)+' · '+safe(p.status)+'</span></span></button>'}
   function section(title,arr,subtitle=''){if(!arr.length)return '';return '<section class="section"><div class="section-heading"><h2>'+safe(title)+'</h2><span class="section-arrow">›</span>'+(subtitle?'<span class="section-subtitle">'+safe(subtitle)+'</span>':'')+'</div><div class="cards-track">'+arr.map(card).join('')+'</div></section>'}
@@ -58,27 +81,38 @@
       +'</div>';
   }
   function renderCatalog(){let list=projects.filter(p=>(view==='catalogo'||view==='favoritos'||(view==='animes'&&p.kind==='Animes')||(view==='animacoes'&&p.kind==='Desenhos')||(view==='embreve'&&isSoon(p)))).filter(p=>view!=='favoritos'||saved.has(p.id)).filter(p=>filter==='Todos'||(filter==='Em produção'&&['Em andamento','Em edição'].includes(p.status))||(filter==='Em breve'&&isSoon(p))||(filter==='Com episódios'&&p.episodes.length>0)).filter(p=>(p.title+' '+p.genre+' '+p.description).toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR')));let titles={catalogo:'Explore o catálogo',animes:'Animes',animacoes:'Desenhos e animações',embreve:'Em breve',favoritos:'Minha lista'};let empty=view==='favoritos'?'Adicione seus projetos favoritos pelo botão “Minha lista”.':'Experimente outro termo ou filtro para encontrar um projeto.';main.innerHTML='<div class="catalog-page"><h1 class="page-title">'+(query?'Resultados da busca':titles[view]||titles.catalogo)+'</h1><p class="page-lede">'+(view==='favoritos'?'Os projetos que você salvou neste navegador.':'Conheça os projetos registrados pela DubWorks. O catálogo não indica que os vídeos já estão disponíveis.')+'</p><div class="filter-strip">'+['Todos','Em produção','Em breve','Com episódios'].map(f=>'<button class="filter-chip '+(filter===f?'active':'')+'" data-filter="'+safe(f)+'">'+safe(f)+'</button>').join('')+'</div><div class="projects-count">'+list.length+' '+(list.length===1?'projeto encontrado':'projetos encontrados')+'</div>'+(list.length?'<div class="catalog-grid">'+list.map(card).join('')+'</div>':'<div class="empty-state"><div class="empty-icon">✦</div><h3>Nenhum projeto por aqui</h3><p>'+safe(empty)+'</p><button class="btn btn-primary" data-view="catalogo">Explorar o catálogo</button></div>')+'</div>'}
-  function render(){updateNav();if(currentProjectId)renderProjectDetail();else if(view==='inicio'&&!query)renderHome();else renderCatalog();}
+  function render(){updateNav();if(playerEpisode)renderPlayer();else if(currentProjectId)renderProjectDetail();else if(view==='inicio'&&!query)renderHome();else renderCatalog();}
   function updateNav(){document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));}
-  function navigate(next){currentProjectId=null;view=next;query='';search.value='';filter='Todos';if(location.hash!=='#'+next)history.pushState({},'','#'+next);render();window.scrollTo({top:0,behavior:'smooth'});}
+  function navigate(next){playerEpisode=null;currentProjectId=null;view=next;query='';search.value='';filter='Todos';if(location.hash!=='#'+next)history.pushState({},'','#'+next);render();window.scrollTo({top:0,behavior:'smooth'});}
   function showToast(t){let el=document.getElementById('toast');el.textContent=t;el.classList.add('visible');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('visible'),2800)}
-  function toggleFavorite(id){if(saved.has(id)){saved.delete(id);showToast('Removido da sua lista.')}else{saved.add(id);showToast('Adicionado à sua lista!')}localStorage.setItem('dw-play-favorites',JSON.stringify([...saved]));render();if(currentProjectId===id)renderProjectDetail()}
+  function toggleFavorite(id){if(saved.has(id)){saved.delete(id);showToast('Removido da sua lista.')}else{saved.add(id);showToast('Adicionado à sua lista!')}localStorage.setItem('dw-play-favorites',JSON.stringify([...saved]));render()}
   function renderProjectDetail(){
     const p=projects.find(q=>q.id===currentProjectId);
     if(!p){currentProjectId=null;renderHome();return}
     const related=projects.filter(q=>q.id!==p.id&&q.kind===p.kind).slice(0,5);
-    const episodeCards=p.episodes.length
-      ?p.episodes.map(e=>{
-        const published=e.published===true&&typeof e.videoUrl==='string'&&/^https:\/\//.test(e.videoUrl);
+    const seasons=availableSeasons(p);
+    if(seasons.length&&!seasons.includes(selectedSeason))selectedSeason=seasons[0];
+    const listed=seasons.length?episodesInSeason(p,selectedSeason):[];
+    const seasonPicker=seasons.length
+      ?'<label class="season-picker" for="dw-season-select">Temporada <select id="dw-season-select" aria-label="Selecionar temporada">'
+        +seasons.map(n=>'<option value="'+n+'" '+(n===selectedSeason?'selected':'')+'>Temporada '+n+'</option>').join('')
+        +'</select></label>'
+      :'';
+    const episodeCards=listed.length
+      ?listed.map(e=>{
+        const ready=isPlayable(e);
+        const previous=getProgress(p.id,seasonNumber(e),e.number);
         return '<article class="detail-episode">'
-          +'<div class="episode-cover" style="background-image:'+safe(getImage(p))+'"><span class="episode-index">EP '+safe(e.number)+'</span></div>'
+          +'<div class="episode-cover" style="background-image:'+safe(getImage(p))+'"><span class="episode-index">T'+seasonNumber(e)+' · EP '+safe(e.number)+'</span></div>'
           +'<div class="detail-episode-copy"><div class="detail-episode-title">'+safe(e.name)+'</div>'
           +'<div class="detail-episode-status">'+safe(e.status)+'</div>'
-          +(published?'<button type="button" class="episode-watch" data-watch="'+safe(p.id)+':'+safe(e.number)+'">▶ Assistir episódio</button>'
-                     :'<p class="episode-availability">Aguardando liberação para assistir</p>')
+          +'<div class="episode-state '+(ready?'is-ready':'')+'">'+(ready?'● Disponível para assistir':'○ Aguardando publicação')+'</div>'
+          +(ready&&previous>10?'<p class="episode-availability">Continuar de '+formatClock(previous)+'</p>':'')
+          +'<div><button type="button" class="episode-action '+(ready?'is-ready':'')+'" data-episode="'+safe(p.id)+':'+seasonNumber(e)+':'+safe(e.number)+'">'
+          +(ready?'▶ '+(previous>10?'Continuar assistindo':'Assistir episódio'):'Ver tela do episódio')+'</button></div>'
           +'</div></article>';
       }).join('')
-      :'<div class="detail-empty"><strong>Tem novidade chegando!</strong><p>Os episódios deste projeto serão exibidos aqui quando estiverem prontos para publicação.</p></div>';
+      :'<div class="detail-empty"><strong>Tem novidade chegando!</strong><p>Os episódios deste projeto serão exibidos aqui quando estiverem cadastrados e liberados para publicação.</p></div>';
     const information='<div class="detail-about"><h2>Sobre '+safe(p.title)+'</h2>'
       +'<p>'+safe(p.description)+'</p><dl>'
       +'<div><dt>Tipo</dt><dd>'+safe(p.kind)+'</dd></div>'
@@ -92,12 +126,18 @@
     const extras='<div class="detail-tab-placeholder"><h2>Por trás das vozes ✦</h2>'
       +'<p>Bastidores, trailers e extras poderão aparecer aqui quando forem publicados pela equipe.</p></div>';
     const contentByTab={
-      episodios:'<div class="detail-section-heading"><h2>Episódios</h2><span>'+p.episodes.length+' cadastrado(s)</span></div><div class="detail-episodes">'+episodeCards+'</div>',
+      episodios:'<div class="season-heading"><div class="detail-section-heading"><h2>Episódios</h2><span>'+listed.length+' cadastrado(s)</span></div>'+seasonPicker+'</div>'
+        +(seasons.length?'<p class="season-helper">Temporadas organizadas conforme o cadastro disponível. A distribuição inicial pode ser atualizada pela equipe.</p>':'')
+        +'<div class="detail-episodes">'+episodeCards+'</div>',
       sugestoes:suggestions,
       extras:extras,
       detalhes:information
     };
     const favoriteLabel=saved.has(p.id)?'✓ Na minha lista':'＋ Minha lista';
+    const firstReady=p.episodes.find(isPlayable);
+    const heroButton=firstReady
+      ?'<button class="btn btn-primary" data-episode="'+safe(p.id)+':'+seasonNumber(firstReady)+':'+safe(firstReady.number)+'">▶ Assistir agora</button>'
+      :'<button class="btn btn-primary" data-scroll-episodes="true">▶ Ver episódios</button>';
     main.innerHTML='<div class="detail-page">'
       +'<section class="detail-hero" aria-label="Página de '+safe(p.title)+'">'
       +'<div class="detail-art" style="background-image:'+safe(getImage(p))+'"></div>'
@@ -106,44 +146,178 @@
       +'<h1>'+safe(p.title)+'</h1>'
       +'<div class="detail-meta"><span class="detail-state">'+safe(p.status)+'</span><span>'+safe(p.kind)+'</span><span>'+safe(p.genre)+'</span></div>'
       +'<p class="detail-description">'+safe(p.description)+'</p>'
-      +'<div class="detail-actions"><button class="btn btn-primary" data-scroll-episodes="true">▶ Ver episódios</button>'
+      +'<div class="detail-actions">'+heroButton
       +'<button class="btn btn-outline" data-favorite="'+safe(p.id)+'">'+favoriteLabel+'</button></div>'
       +'</div></section>'
       +'<div class="detail-content"><div class="detail-tabs" role="tablist" aria-label="Explorar '+safe(p.title)+'">'
-      +['episodios','sugestoes','extras','detalhes'].map((t)=>{
+      +['episodios','sugestoes','extras','detalhes'].map(t=>{
           const label={episodios:'Episódios',sugestoes:'Sugestões',extras:'Extras',detalhes:'Detalhes'}[t];
           return '<button type="button" role="tab" aria-selected="'+(detailsTab===t)+'" class="'+(detailsTab===t?'active':'')+'" data-tab="'+t+'">'+label+'</button>';
         }).join('')
       +'</div><section class="detail-panel" id="episodios" role="tabpanel">'
       +(contentByTab[detailsTab]||contentByTab.episodios)
-      +'<p class="detail-rights">Este catálogo apresenta projetos da comunidade. Episódios completos e downloads só serão habilitados para arquivos com autorização de publicação e distribuição.</p>'
+      +'<p class="detail-rights">A liberação de episódios completos e downloads depende da autorização de exibição e distribuição dos titulares.</p>'
       +'</section></div></div>';
+  }
+  function openEpisode(id,season,number){
+    const p=projects.find(q=>q.id===id);
+    if(!p||!episodeFor(p,season,number))return;
+    playerEpisode={projectId:id,season:Number(season),number:Number(number)};
+    selectedSeason=Number(season);currentProjectId=id;
+    const route='#assistir/'+encodeURIComponent(id)+'/'+Number(season)+'/'+Number(number);
+    if(location.hash!==route)history.pushState({},'',route);
+    render();window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function closePlayer(){
+    if(!playerEpisode)return;
+    const id=playerEpisode.projectId;
+    playerEpisode=null;currentProjectId=id;detailsTab='episodios';
+    if(location.hash!=='#projeto/'+encodeURIComponent(id))history.pushState({},'','#projeto/'+encodeURIComponent(id));
+    render();window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function renderPlayer(){
+    const state=playerEpisode;
+    const p=projects.find(q=>q.id===state.projectId);
+    const e=episodeFor(p,state.season,state.number);
+    if(!p||!e){playerEpisode=null;currentProjectId=null;navigate('inicio');return}
+    const ready=isPlayable(e);
+    const seasons=availableSeasons(p);
+    const currentEpisodes=episodesInSeason(p,state.season);
+    const position=currentEpisodes.findIndex(q=>Number(q.number)===state.number);
+    const next=currentEpisodes[position+1];
+    const previous=currentEpisodes[position-1];
+    const progress=getProgress(p.id,state.season,e.number);
+    const seasonMenu=seasons.length>1
+      ?'<label class="season-picker watch-season-picker">Temporada <select id="dw-watch-season-select" aria-label="Selecionar temporada">'
+        +seasons.map(n=>'<option value="'+n+'" '+(n===state.season?'selected':'')+'>Temporada '+n+'</option>').join('')
+        +'</select></label>'
+      :'';
+    const poster=validMediaUrl(e.posterUrl)?e.posterUrl:(validMediaUrl(p.image)?p.image:'');
+    const videoSrc=ready?safe(e.videoUrl):'';
+    const media=ready
+      ?'<video id="dw-episode-video" class="watch-video" controls playsinline preload="metadata"'
+        +(poster?' poster="'+safe(poster)+'"':'')+' src="'+videoSrc+'">'
+        +(validMediaUrl(e.captionsUrl)?'<track kind="subtitles" src="'+safe(e.captionsUrl)+'" srclang="pt-BR" label="Português" default>':'')
+        +'Seu navegador não suporta a reprodução deste vídeo.</video>'
+      :'<div class="watch-empty-art" style="background-image:'+safe(getImage(p))+'"></div>'
+        +'<div class="watch-unavailable"><span class="watch-glass-label">DUBWORKS PLAY</span>'
+        +'<span class="watch-unavailable-icon" aria-hidden="true">▷</span>'
+        +'<h2>Episódio ainda não disponível</h2>'
+        +'<p>O player está preparado, mas este episódio não tem um vídeo autorizado para reprodução no momento.</p></div>';
+    main.innerHTML='<div class="watch-page"><div class="watch-inner">'
+      +'<div class="watch-header"><button class="watch-back" data-player-back="true">← Voltar aos episódios</button>'
+      +'<div class="watch-mini-brand"><span>✦</span> DUBWORKS PLAY</div></div>'
+      +'<div class="watch-stage" id="dw-watch-stage">'+media
+      +'<div id="dw-watch-error" class="watch-video-error" role="alert"><h2>Não foi possível carregar o vídeo</h2>'
+      +'<p>Confira se o arquivo está disponível e se o formato é compatível com seu navegador.</p></div>'
+      +'</div>'
+      +'<section class="watch-underplayer"><div class="watch-copy">'
+      +'<p class="watch-series">'+safe(p.title)+'</p>'
+      +'<h1 class="watch-episode-name">T'+state.season+' · EP '+state.number+' — '+safe(e.name)+'</h1>'
+      +'<p class="watch-meta">'+safe(e.status)+' · '+(ready?'Pronto para assistir':'Aguardando publicação')+'</p>'
+      +'<p class="watch-summary">'+safe(e.description||p.description)+'</p></div>'
+      +'<div class="watch-buttons">'
+      +'<button class="watch-button" data-player-back="true">Voltar à série</button>'
+      +(ready?'<button class="watch-button" data-fullscreen="true">⛶ Tela cheia</button>':'')
+      +(previous?'<button class="watch-button" data-episode="'+safe(p.id)+':'+state.season+':'+safe(previous.number)+'">← Anterior</button>':'')
+      +(next?'<button class="watch-button watch-button-primary" data-episode="'+safe(p.id)+':'+state.season+':'+safe(next.number)+'">Próximo episódio →</button>':'')
+      +'</div></section>'
+      +'<div class="watch-toolbar">'
+      +seasonMenu
+      +(ready?'<label for="dw-speed-select">Velocidade <select id="dw-speed-select"><option value="0.75">0,75×</option><option value="1" selected>Normal (1×)</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>'
+        +'<button class="watch-button" data-pip="true">▣ Mini player</button>'
+        +(progress>10?'<span class="watch-resume">Retomar em '+formatClock(progress)+'</span>':'')
+        :'<span class="watch-toolbar-note">Quando um vídeo autorizado for cadastrado, a reprodução aparecerá aqui.</span>')
+      +'</div>'
+      +'<section class="watch-next"><h2>Mais episódios desta temporada</h2><div class="watch-next-cards">'
+      +currentEpisodes.map(item=>'<button class="watch-next-item" data-episode="'+safe(p.id)+':'+state.season+':'+safe(item.number)+'" aria-current="'+(item.number===e.number)+'"><strong>EP '+safe(item.number)+' — '+safe(item.name)+'</strong><span>'+safe(item.status)+(isPlayable(item)?' · Assistir':' · Indisponível')+'</span></button>').join('')
+      +'</div></section>'
+      +'<p class="watch-rights">Reprodução restrita a arquivos com autorização de exibição. Download offline ainda não está habilitado.</p>'
+      +'</div></div>';
+    if(ready)wirePlayer(state);
+  }
+  function wirePlayer(state){
+    const video=document.getElementById('dw-episode-video');
+    if(!video)return;
+    let lastSavedSecond=-1;
+    video.addEventListener('loadedmetadata',()=>{
+      const resume=getProgress(state.projectId,state.season,state.number);
+      if(resume>10 && Number.isFinite(video.duration) && resume<video.duration-10){
+        video.currentTime=resume;
+      }
+    });
+    video.addEventListener('timeupdate',()=>{
+      if(!Number.isFinite(video.currentTime))return;
+      const second=Math.floor(video.currentTime);
+      if(second>0 && second!==lastSavedSecond && second%5===0){
+        saveProgress(state.projectId,state.season,state.number,second);
+        lastSavedSecond=second;
+      }
+    });
+    video.addEventListener('pause',()=>{
+      if(Number.isFinite(video.currentTime))saveProgress(state.projectId,state.season,state.number,video.currentTime);
+    });
+    video.addEventListener('ended',()=>{
+      saveProgress(state.projectId,state.season,state.number,0);
+      showToast('Fim do episódio. Você pode escolher o próximo!');
+    });
+    video.addEventListener('error',()=>{
+      document.getElementById('dw-watch-error')?.classList.add('visible');
+    });
   }
   function openProject(id){
     if(!projects.some(p=>p.id===id))return;
     returnView=currentProjectId?returnView:view;
-    currentProjectId=id;detailsTab='episodios';
+    playerEpisode=null;currentProjectId=id;selectedSeason=1;detailsTab='episodios';
     if(location.hash!=='#projeto/'+encodeURIComponent(id))history.pushState({},'','#projeto/'+encodeURIComponent(id));
     render();window.scrollTo({top:0,behavior:'smooth'});
   }
   function closeProject(){navigate(returnView||'inicio');}
   function syncRoute(){
-    const hash=decodeURIComponent(location.hash.replace(/^#/,''));
-    if(hash.startsWith('projeto/')){
-      const id=hash.slice(8);
-      if(projects.some(p=>p.id===id)){currentProjectId=id;detailsTab='episodios';}
-      else currentProjectId=null;
+    let hash;
+    try{hash=decodeURIComponent(location.hash.replace(/^#/,''));}
+    catch{hash='inicio'}
+    const parts=hash.split('/');
+    if(parts[0]==='assistir'&&parts.length===4){
+      const p=projects.find(q=>q.id===parts[1]);
+      const season=Number(parts[2]),episode=Number(parts[3]);
+      if(p&&episodeFor(p,season,episode)){
+        playerEpisode={projectId:p.id,season,number:episode};
+        currentProjectId=p.id;selectedSeason=season;detailsTab='episodios';
+      }else{playerEpisode=null;currentProjectId=null;view='inicio'}
+    }else if(parts[0]==='projeto'&&parts.length===2){
+      const p=projects.find(q=>q.id===parts[1]);
+      playerEpisode=null;currentProjectId=p?p.id:null;
+      selectedSeason=p&&availableSeasons(p).length?availableSeasons(p)[0]:1;
+      detailsTab='episodios';
     }else{
       const allowed=['inicio','catalogo','animes','animacoes','embreve','favoritos'];
-      currentProjectId=null;view=allowed.includes(hash)?hash:'inicio';
+      playerEpisode=null;currentProjectId=null;view=allowed.includes(hash)?hash:'inicio';
     }
     render();window.scrollTo({top:0,behavior:'instant'});
   }
   document.addEventListener('click',e=>{
-    const n=e.target.closest('[data-close],[data-open],[data-back],[data-favorite],[data-view],[data-filter],[data-hero],[data-hero-to],[data-tab],[data-scroll-episodes],[data-watch]');
+    const n=e.target.closest('[data-close],[data-open],[data-back],[data-player-back],[data-episode],[data-fullscreen],[data-pip],[data-favorite],[data-view],[data-filter],[data-hero],[data-hero-to],[data-tab],[data-scroll-episodes],[data-watch]');
     if(!n)return;
+    if(n.dataset.playerBack){closePlayer();return}
     if(n.dataset.close||n.dataset.back){closeProject();return}
-    if(n.dataset.watch){showToast('Este episódio ainda não foi liberado para reprodução.');return}
+    if(n.dataset.episode){
+      const [id,season,number]=n.dataset.episode.split(':');
+      openEpisode(id,Number(season),Number(number));return;
+    }
+    if(n.dataset.fullscreen){
+      const player=document.getElementById('dw-episode-video');
+      const stage=document.getElementById('dw-watch-stage');
+      const target=player||stage;
+      if(target?.requestFullscreen)target.requestFullscreen().catch(()=>showToast('Tela cheia não disponível neste dispositivo.'));
+      return;
+    }
+    if(n.dataset.pip){
+      const player=document.getElementById('dw-episode-video');
+      if(player?.requestPictureInPicture)player.requestPictureInPicture().catch(()=>showToast('Mini player não disponível neste navegador.'));
+      else showToast('Mini player não disponível neste navegador.');
+      return;
+    }
     if(n.dataset.open){openProject(n.dataset.open);return}
     if(n.dataset.favorite){toggleFavorite(n.dataset.favorite);return}
     if(n.dataset.view){navigate(n.dataset.view);return}
@@ -153,9 +327,28 @@
     if(n.dataset.tab){detailsTab=n.dataset.tab;renderProjectDetail();return}
     if(n.dataset.scrollEpisodes){detailsTab='episodios';renderProjectDetail();document.querySelector('.detail-tabs')?.scrollIntoView({behavior:'smooth',block:'start'});return}
   });
-  search.addEventListener('input',e=>{query=e.target.value.trim();if(query){view='catalogo';currentProjectId=null;}filter='Todos';render()});
+  document.addEventListener('change',e=>{
+    const target=e.target;
+    if(target?.id==='dw-season-select'){
+      const p=projects.find(q=>q.id===currentProjectId);
+      const next=Number(target.value);
+      if(p&&availableSeasons(p).includes(next)){selectedSeason=next;renderProjectDetail()}
+      return;
+    }
+    if(target?.id==='dw-watch-season-select'&&playerEpisode){
+      const p=projects.find(q=>q.id===playerEpisode.projectId);
+      const eps=p?episodesInSeason(p,Number(target.value)):[];
+      if(eps.length)openEpisode(p.id,Number(target.value),Number(eps[0].number));
+      return;
+    }
+    if(target?.id==='dw-speed-select'){
+      const video=document.getElementById('dw-episode-video');
+      if(video)video.playbackRate=Number(target.value)||1;
+    }
+  });
+  search.addEventListener('input',e=>{query=e.target.value.trim();if(query){view='catalogo';playerEpisode=null;currentProjectId=null;}filter='Todos';render()});
   document.getElementById('mobile-search-btn').addEventListener('click',()=>{navigate('catalogo');document.getElementById('topbar').classList.toggle('search-open');if(document.getElementById('topbar').classList.contains('search-open'))search.focus();});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&currentProjectId)closeProject();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(playerEpisode)closePlayer();else if(currentProjectId)closeProject();}});
   window.addEventListener('hashchange',syncRoute);
   window.addEventListener('popstate',syncRoute);
   // Feedback tátil: o título levanta também no toque, sem exigir hover no celular.
