@@ -30,9 +30,9 @@ O protótipo usa uma **lista estática** de alguns projetos reais do DubWorks Ma
 
 ### Como vincular um episódio autorizado ao player
 
-Na lista \`projects\` em \`app.js\`, um episódio pode incluir os seguintes campos:
+Na lista `projects` em `app.js`, um episódio pode incluir os seguintes campos:
 
-\`\`\`js
+```js
 {
   season: 1,                    // número da temporada no catálogo
   number: 1,                    // episódio dentro da temporada
@@ -44,11 +44,11 @@ Na lista \`projects\` em \`app.js\`, um episódio pode incluir os seguintes camp
   posterUrl: 'https://exemplo.com/capa-autorizada.jpg',
   captionsUrl: 'https://exemplo.com/legendas-ptbr.vtt'
 }
-\`\`\`
+```
 
-O player só habilita o vídeo quando \`published: true\` **e** um endereço HTTPS de mídia são informados. A URL precisa apontar para um arquivo/formato reproduzível pelo navegador, por exemplo MP4 compatível. Plataformas que exigem autenticação, URLs do Google Drive ou formatos HLS podem precisar de um provedor/player específico. O servidor do vídeo precisa permitir o acesso no navegador.
+O player só habilita o vídeo quando `published: true` **e** um endereço HTTPS de mídia são informados. A URL precisa apontar para um arquivo/formato reproduzível pelo navegador, por exemplo MP4 compatível. Plataformas que exigem autenticação, URLs do Google Drive ou formatos HLS podem precisar de um provedor/player específico. O servidor do vídeo precisa permitir o acesso no navegador.
 
-Os episódios antigos sem \`season\` são agrupados **provisoriamente** em “Temporada 1”; isso não confirma a numeração oficial das temporadas. Projetos sem episódios não exibem temporadas fictícias. A seleção de temporadas ainda é estática, sem painel de edição.
+Os episódios antigos sem `season` são agrupados **provisoriamente** em “Temporada 1”; isso não confirma a numeração oficial das temporadas. Projetos sem episódios não exibem temporadas fictícias. A seleção de temporadas ainda é estática, sem painel de edição.
 
 **Não existe download offline implementado nesta versão.** Ativá-lo exigirá autorização específica, infraestrutura de arquivos e política de acesso.
 
