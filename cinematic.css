@@ -1,0 +1,281 @@
+/* DubWorks Play — layout cinematográfico v2
+   Camada visual deliberadamente isolada. Preserva a identidade oficial e os dados. */
+:root{
+  --dw-night:#080a20;
+  --dw-midnight:#0e0d2e;
+  --dw-violet:#5144d2;
+  --dw-cyan:#73d9ff;
+  --dw-text:#faf8ff;
+  --dw-muted:#c6c7e2;
+  --dw-softline:rgba(175,176,255,.18);
+  --dw-smooth:cubic-bezier(.2,.72,.18,1);
+}
+body{background:var(--dw-night);color:var(--dw-text)}
+body:before{opacity:.06}
+.topbar{
+  height:78px;padding:0 clamp(18px,3.7vw,74px);
+  background:linear-gradient(180deg,rgba(7,9,28,.96),rgba(8,9,30,.89));
+  border-bottom:1px solid rgba(160,153,234,.12);
+  box-shadow:0 10px 30px rgba(3,4,17,.12);
+  gap:clamp(18px,2.8vw,53px);
+  backdrop-filter:blur(22px);
+}
+.brand-logo-viewport{height:69px;width:127px}
+.brand-logo-viewport img{height:127px;width:127px;top:-28px}
+.brand-play-mark{
+  background:#70dfff;border:0;box-shadow:none;color:#11153d;
+  font:900 10px 'Nunito',sans-serif;padding:4px 9px;letter-spacing:1.4px;
+  margin-left:-5px;transform:rotate(-7deg);
+}
+.desktop-nav{gap:clamp(8px,1.1vw,26px)}
+.nav-link{
+  height:76px;align-self:center;color:#c8c8e0;line-height:76px;border-radius:0;
+  background:transparent!important;padding:0 4px;font-size:13px;font-weight:900;
+}
+.nav-link:hover,.nav-link.active{color:#fff}
+.nav-link.active:after{left:0;right:0;bottom:7px;height:3px;background:var(--dw-cyan);box-shadow:0 0 12px #64dbff66}
+.searchbox{border:1px solid rgba(187,189,255,.25);background:rgba(33,31,72,.42);height:42px}
+.searchbox:focus-within{border-color:var(--dw-cyan)}
+.avatar{background:#4037bd;border:1px solid #87e6ff;box-shadow:none}
+.hero{
+  margin:78px 0 0;height:clamp(540px,54vw,740px);min-height:540px;max-height:none;
+  border:0;border-radius:0;overflow:hidden;box-shadow:none;background:#0e1035;
+}
+.hero:before{display:none}.hero:after{display:none}
+.hero-picture{background-position:center 34%;filter:saturate(1.03)}
+.hero-picture:before{
+  background:
+    linear-gradient(90deg,#07091ef9 2%,rgba(8,10,30,.93) 24%,rgba(9,11,35,.53) 54%,rgba(8,11,34,.08) 82%),
+    linear-gradient(0deg,#080a20 0%,rgba(8,10,32,.74) 15%,transparent 47%);
+}
+.hero-picture:after{background:linear-gradient(115deg,rgba(62,55,158,.30),transparent 56%)}
+.hero-glow{display:none}
+.hero-content{
+  position:absolute;left:clamp(25px,5.5vw,103px);bottom:clamp(135px,12vw,184px);
+  padding:0;max-width:min(640px,48vw);z-index:3;
+}
+.hero-kicker{
+  background:transparent;border:0;box-shadow:none;transform:none;
+  padding:0;margin-bottom:17px;color:#a2dfff;
+  font:900 12px 'Nunito',sans-serif;letter-spacing:3px;
+}
+.hero-title{
+  font:600 clamp(51px,5.7vw,92px)/.97 'Fredoka',sans-serif;
+  letter-spacing:-1.5px;margin:0 0 20px;
+  text-shadow:0 5px 35px rgba(0,0,0,.83);
+}
+.hero-meta{font-size:13px;gap:11px;margin-bottom:16px}
+.hero-meta .pill{background:rgba(57,49,128,.68);border:1px solid #69d9ff;color:#e9faff;padding:5px 12px}
+.hero-description{font:700 15px/1.7 'Nunito',sans-serif;margin:0 0 25px;color:#e4e5fa;text-shadow:0 2px 10px #050418}
+.hero-buttons{gap:11px}
+.btn{
+  box-shadow:none!important;border-radius:8px;transition:transform .25s var(--dw-smooth),
+  background .2s,border-color .2s!important;min-height:49px;
+}
+.btn:hover{transform:translateY(-2px) scale(1.015)}
+.btn-primary{background:#f6f7ff;color:#111333;border:1px solid #fff}
+.btn-primary:hover{background:#d8eeff;color:#0a1840}
+.btn-outline{background:rgba(40,35,76,.63);color:#f8f7ff;border:1px solid rgba(205,209,255,.47);backdrop-filter:blur(10px)}
+.btn-outline:hover{border-color:#84dcff;background:rgba(72,62,146,.7)}
+.hero-slide-arrows{right:3.5%;top:42%}
+.hero-slide-arrows button{
+  width:43px;height:57px;background:#080b27a3;border:1px solid #dedbff45;
+  border-radius:8px;backdrop-filter:blur(8px)
+}
+.hero-slide-arrows button:hover{background:#5245bfba}
+.hero-dots{bottom:142px;right:5.4%;gap:9px;z-index:4}
+.hero-dot{width:8px;height:8px;background:#eceaff7d}
+.hero-dot.active{width:30px;background:#70dcff;box-shadow:0 0 12px #62dfff80}
+.content{position:relative;z-index:4;margin-top:-87px;padding:0 clamp(20px,4.2vw,84px) 90px}
+.section{margin:0 0 41px}
+.section-heading{margin-bottom:15px;gap:9px}
+.section-heading:before{display:none}
+.section-heading h2{font:600 clamp(23px,2.1vw,30px) 'Fredoka',sans-serif;letter-spacing:.1px}
+.section-arrow{font-size:23px;color:#d9d8ff}
+.section-subtitle{font:700 12px 'Nunito',sans-serif;color:#a2a3c7}
+.cards-track{gap:14px;grid-auto-columns:minmax(242px,1fr);padding:5px 1px 18px;overflow-y:visible;scrollbar-color:#514da6 transparent}
+.cards-track.featured-track{grid-auto-columns:minmax(242px,1fr)}
+.show-card{
+  position:relative;aspect-ratio:1.75;border-radius:11px;
+  border:1px solid rgba(179,178,255,.21);background:#201a4e;
+  box-shadow:0 9px 21px #03041470;
+  overflow:hidden;isolation:isolate;
+  transition:transform .3s var(--dw-smooth),box-shadow .3s var(--dw-smooth),border-color .2s;
+  transform-origin:center 60%;
+}
+.show-card .card-image{transition:transform .52s var(--dw-smooth),filter .4s;filter:saturate(.98)}
+.show-card .card-shade{background:linear-gradient(180deg,transparent 24%,rgba(5,6,20,.2) 48%,rgba(5,7,21,.96) 100%);
+  transition:background .3s}
+.show-card .card-tag{
+  transform:none;box-shadow:none;border:1px solid rgba(170,204,255,.75);
+  font:900 10px 'Nunito',sans-serif;letter-spacing:.35px;border-radius:5px;
+  background:#4134afeb;padding:4px 8px;
+}
+.show-card .card-title{font:600 23px/1.07 'Fredoka',sans-serif;letter-spacing:0;margin:0 0 7px}
+.show-card .card-status{font-size:11px;color:#c7c9dc}
+.show-card .card-text{left:15px;right:15px;bottom:12px;transition:transform .32s var(--dw-smooth)}
+.show-card .card-text:after{
+  content:'Ver detalhes  ↗';display:block;max-height:0;opacity:0;overflow:hidden;
+  color:#87e0ff;font:900 12px 'Nunito',sans-serif;line-height:1.4;transform:translateY(7px);
+  transition:max-height .23s,opacity .23s,transform .28s var(--dw-smooth)
+}
+@media(hover:hover){
+ .show-card:hover{transform:translateY(-9px) scale(1.03);z-index:6;border-color:#7ad6f8;box-shadow:0 22px 44px #02030fa6}
+ .show-card:hover .card-image{transform:scale(1.12);filter:saturate(1.12)}
+ .show-card:hover .card-text{transform:translateY(-8px)}
+ .show-card:hover .card-title{transform:translateY(-4px)}
+ .show-card:hover .card-text:after{max-height:26px;opacity:1;transform:translateY(0)}
+}
+.show-card:focus-visible{outline:2px solid #78dfff;outline-offset:2px;z-index:7}
+.show-card:focus-visible .card-text,.show-card:active .card-text,.show-card.card-touched .card-text{transform:translateY(-6px)}
+.show-card:focus-visible .card-text:after,.show-card:active .card-text:after,.show-card.card-touched .card-text:after{max-height:26px;opacity:1;transform:translateY(0)}
+.show-card:active,.show-card.card-touched{transform:translateY(-5px) scale(1.01);border-color:#80dcff}
+.show-card:active .card-image,.show-card.card-touched .card-image{transform:scale(1.08)}
+.catalog-page{margin-top:78px;background:linear-gradient(180deg,#111037,#080a20 520px);padding-top:66px}
+.catalog-grid{gap:19px}
+.catalog-grid .show-card{aspect-ratio:1.68}
+.page-title{font:600 clamp(39px,4vw,60px) 'Fredoka',sans-serif}
+.filter-chip{background:#221d50;border:1px solid #6359ab}
+.filter-chip.active,.filter-chip:hover{background:#5143c3;border-color:#79d9ff}
+.footer{background:#090a22;border-top:1px solid #373174}
+.footer-brand{font-family:'Fredoka',sans-serif}
+.bottom-nav{background:rgba(11,10,37,.97);border-top:1px solid #594ba4}
+/* Página completa do título */
+.detail-page{margin-top:78px;background:#090b24;min-height:85vh;padding-bottom:70px}
+.detail-hero{
+  height:clamp(530px,53vw,720px);min-height:530px;background:#101035;
+  isolation:isolate;position:relative;overflow:hidden;
+}
+.detail-art{inset:0;background-position:center 31%;filter:saturate(1.03)}
+.detail-art:before{
+  background:linear-gradient(90deg,#090a22fa 0%,#0b0b2ce8 28%,#10113c7a 58%,rgba(9,11,34,.08) 93%),
+  linear-gradient(0deg,#090b24 0%,#0a0b269c 15%,transparent 48%)
+}
+.detail-back{
+  z-index:4;top:24px;left:clamp(25px,5.5vw,105px);
+  background:rgba(12,13,40,.55);border:1px solid #c3c9ff55;
+  padding:10px 18px;border-radius:7px;font-size:13px;backdrop-filter:blur(10px)
+}
+.detail-back:hover{background:#4135a0}
+.detail-hero-body{
+  left:clamp(25px,5.5vw,105px);width:min(680px,52vw);
+  bottom:clamp(85px,9vw,140px);
+}
+.detail-eyebrow{
+  background:transparent;transform:none;box-shadow:none;border:0;
+  font:900 11px 'Nunito',sans-serif;letter-spacing:2.6px;color:#8fdbff;padding:0
+}
+.detail-hero h1{
+  font:600 clamp(52px,5.8vw,90px)/1.02 'Fredoka',sans-serif;
+  letter-spacing:-1.1px;margin:19px 0;
+  text-shadow:0 8px 32px #010214dc
+}
+.detail-meta{font-size:13px;color:#e9e8f5;gap:14px}
+.detail-state{background:#23205695;border:1px solid #80dbff;color:#c4f0ff;border-radius:100px}
+.detail-description{color:#e2e2f2;font:700 15px/1.7 'Nunito',sans-serif}
+.detail-content{
+  padding:0 clamp(25px,5.5vw,105px) 50px;
+  max-width:1700px;margin:0 auto;
+}
+.detail-tabs{
+  margin-top:-48px;position:relative;z-index:6;
+  border-bottom:1px solid #4a448270;background:transparent;
+  gap:35px;padding-top:0;margin-bottom:27px
+}
+.detail-tabs button{
+  font:900 13px 'Nunito',sans-serif;letter-spacing:1px;text-transform:uppercase;
+  border-bottom:3px solid transparent;color:#b1b4d2;padding:18px 3px;
+}
+.detail-tabs button.active{border-color:#87dfff;color:#fff}
+.detail-tabs button:hover{color:#fff}
+.detail-section-heading h2,.detail-about h2{font-size:26px}
+.detail-episodes{gap:14px}
+.detail-episode{
+  border:1px solid rgba(166,163,237,.2);
+  background:rgba(30,28,71,.56);box-shadow:none;border-radius:12px;padding:13px;min-height:136px;
+}
+.detail-episode:hover{border-color:#80dfff;background:rgba(56,46,114,.65)}
+.episode-cover{border-radius:8px;width:177px}
+.episode-index{background:#4f45ba;border:0}
+.detail-episode-title{font:600 20px 'Fredoka',sans-serif}
+.detail-episode-status{color:#90e3ff}
+.detail-rights{background:#161536;border-left:3px solid #72dfff;border-radius:0 7px 7px 0;color:#b9beda}
+.detail-about{background:rgba(30,28,71,.55);border:1px solid rgba(166,163,237,.2);border-radius:12px}
+.detail-empty{background:rgba(28,27,70,.54);border:1px dashed #5a568b;border-radius:10px}
+.detail-related .section{margin-top:0}
+.detail-related{margin-top:40px}
+.detail-tab-placeholder{max-width:630px;background:#1918389c;border:1px solid #393a70;border-radius:10px;padding:26px}
+.detail-tab-placeholder h2{font:600 26px 'Fredoka',sans-serif;margin:0 0 9px}
+.detail-tab-placeholder p{font:700 14px/1.7 'Nunito',sans-serif;color:#bbbfdc;margin:0}
+.detail-episodes .detail-episode:hover .episode-cover{filter:brightness(1.1)}
+.detail-content .detail-section-heading{margin-bottom:18px}
+@media(min-width:1550px){
+ .cards-track{grid-auto-columns:calc((100% - 60px)/5)}
+ .cards-track.featured-track{grid-auto-columns:calc((100% - 60px)/5)}
+}
+@media(max-width:1170px){
+ .desktop-nav{gap:8px}.nav-link{font-size:12px}
+ .hero-content{max-width:57vw}.detail-hero-body{width:min(650px,63vw)}
+}
+@media(max-width:760px){
+ .topbar{height:67px;padding:0 17px}
+ .brand-logo-viewport{height:63px;width:116px}
+ .brand-logo-viewport img{width:116px;height:116px;top:-26px}
+ .brand-play-mark{font-size:10px;letter-spacing:.5px;padding:3px 7px}
+ .hero{margin:67px 0 0;height:min(710px,calc(100svh - 67px));min-height:565px;border:0;border-radius:0;box-shadow:none}
+ .hero-picture{background-position:64% 9%}
+ .hero-picture:before{
+  background:linear-gradient(0deg,#080a20 1%,#0b0c2fe8 31%,#0d103d59 67%,rgba(12,11,40,.1) 100%),
+  linear-gradient(90deg,#080a2033,transparent)
+ }
+ .hero-content{position:absolute;left:20px;right:20px;bottom:78px;max-width:none;padding:0}
+ .hero-kicker{font-size:10px;letter-spacing:1.7px;margin-bottom:13px}
+ .hero-title{font-size:clamp(44px,10.5vw,66px);line-height:1.03;letter-spacing:-.4px;margin-bottom:12px}
+ .hero-meta{font-size:11px;gap:7px;margin-bottom:12px}
+ .hero-description{font-size:12px;line-height:1.54;margin-bottom:17px;-webkit-line-clamp:3}
+ .hero-buttons .btn{min-height:44px;padding:10px 14px;font-size:12px}
+ .hero-dots{bottom:34px;right:22px}
+ .content{margin-top:-3px;padding:0 17px 70px}
+ .section{margin-bottom:28px}
+ .section-heading h2{font-size:22px}
+ .cards-track{grid-auto-columns:235px;gap:10px}
+ .show-card .card-title{font-size:20px}
+ .show-card .card-tag{font-size:9px}
+ .catalog-page{margin-top:67px;padding:35px 17px 105px}
+ .catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .catalog-grid .show-card{aspect-ratio:.92}
+ .detail-page{margin-top:67px}
+ .detail-hero{height:min(680px,calc(100svh - 67px));min-height:550px}
+ .detail-art{background-position:62% 7%}
+ .detail-art:before{
+   background:linear-gradient(0deg,#090b24 2%,#0d0e32ea 31%,#0b0f3252 67%,#090b2412 100%)
+ }
+ .detail-back{left:18px;top:18px;padding:8px 13px;font-size:12px}
+ .detail-hero-body{left:19px;right:18px;bottom:67px;width:auto}
+ .detail-eyebrow{font-size:10px;letter-spacing:1.4px}
+ .detail-hero h1{font-size:clamp(43px,11vw,66px);line-height:1.01;margin:13px 0}
+ .detail-description{font-size:12px;line-height:1.54;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+ .detail-meta{font-size:11px;gap:8px}
+ .detail-content{padding:0 18px 90px}
+ .detail-tabs{margin-top:-28px;gap:20px;overflow:auto;white-space:nowrap;margin-bottom:23px;scrollbar-width:none}
+ .detail-tabs button{font-size:11px;padding:15px 2px;flex:0 0 auto}
+ .detail-episodes{grid-template-columns:1fr;gap:10px}
+ .detail-episode{min-height:110px;padding:9px}
+ .episode-cover{width:110px}
+ .detail-episode-title{font-size:17px}
+ .detail-rights{font-size:11px}
+ .detail-about{padding:19px}
+ .detail-tab-placeholder{padding:21px}
+}
+@media(max-width:415px){
+ .hero-content{left:17px;right:17px}
+ .hero-title{font-size:42px}
+ .hero-meta .pill{padding:4px 7px}
+ .cards-track{grid-auto-columns:226px}
+ .catalog-grid .card-title{font-size:18px}
+ .detail-hero h1{font-size:42px}
+}
+@media(prefers-reduced-motion:reduce){
+ .show-card,.show-card .card-image,.show-card .card-text,.show-card .card-text:after,
+ .show-card .card-title,.btn,.detail-episode{transition:none!important}
+}
