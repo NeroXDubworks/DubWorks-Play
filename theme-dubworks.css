@@ -1,0 +1,137 @@
+
+/* DubWorks Play — identidade visual DubWorks, edição 2026 */
+:root{
+  --bg:#0d0a2b;--bg2:#130e37;--panel:#241858;--primary:#4035c7;
+  --primary2:#69d6fb;--text:#fffaf5;--muted:#c7c0eb;--line:#5846aa;
+  --font:'Nunito',system-ui,sans-serif;--display:'Fredoka','Outfit',system-ui,sans-serif
+}
+body{
+  background:radial-gradient(ellipse at 83% 3%,#271763 0%,transparent 40%),
+  radial-gradient(ellipse at 4% 58%,#17256a 0%,transparent 34%),#0d0a2b;
+  color:var(--text)
+}
+body:before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.22;
+  background:radial-gradient(#76d8ff 1px,transparent 1px) 27px 33px/118px 118px,
+             radial-gradient(#a299ff 1px,transparent 1px) 71px 62px/167px 167px}
+.topbar{height:88px;padding:0 clamp(19px,3vw,50px);gap:clamp(12px,2vw,40px);
+  background:linear-gradient(100deg,#100d32f8,#26145af8);border-bottom:2px solid #4c3c9e99;
+  box-shadow:0 8px 32px #05021a99}
+.brand{gap:4px;min-width:0}.brand-icon,.brand-type{display:none}
+.brand-logo-viewport{display:block;position:relative;flex:none;width:141px;height:78px;overflow:hidden}
+.brand-logo-viewport img{position:absolute;width:141px;height:141px;max-width:none;top:-30px;left:0}
+.brand-play-mark{display:inline-block;font:900 12px 'Nunito',sans-serif;letter-spacing:2px;
+  background:#6edafa;color:#151146;border:2px solid #352ac0;box-shadow:3px 4px 0 #282078;
+  border-radius:99px;padding:5px 9px;transform:rotate(-8deg);margin-left:-6px}
+.desktop-nav{gap:clamp(8px,1vw,20px)}.nav-link{font:900 13px 'Nunito',sans-serif;color:#e0dcff;
+  border-radius:18px;padding:8px 9px;align-self:center;height:40px}
+.nav-link:hover,.nav-link.active{background:#5443c655;color:white}.nav-link.active:after{
+  height:3px;bottom:1px;left:13px;right:13px;border-radius:99px;background:#75dcff}
+.searchbox{background:#1c1649;border:2px solid #6858b0;color:white;box-shadow:inset 0 1px 6px #05032455}
+.searchbox:focus-within{border-color:#74d9ff}.searchbox svg{color:#7dddff}.searchbox input{color:white}
+.avatar{background:#4531b9;border:2px solid #66d4ff;box-shadow:2px 4px 0 #150d64}
+.hero{
+  margin:110px clamp(13px,3vw,53px) 0;height:min(580px,47vw);min-height:505px;
+  border:2px solid #786ade;border-radius:30px;overflow:hidden;isolation:isolate;
+  box-shadow:0 17px 0 -10px #5142b2,0 30px 60px #04021abb;background:#16124b
+}
+.hero:before{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
+  border-radius:28px;background:linear-gradient(130deg,#6554cf33,transparent 55%,#93d8ff22)}
+.hero:after{content:'✦ ✧ ✦';position:absolute;z-index:3;right:32px;top:20px;
+  color:#a2e9ff;font-size:27px;letter-spacing:12px;text-shadow:0 0 12px #6ddcff99;pointer-events:none}
+.hero-picture{background-position:71% 31%}.hero-picture:before{
+  background:linear-gradient(90deg,#121039fb,#171344ed 25%,#13134680 60%,#1010390a 100%),
+  linear-gradient(0deg,#11103a,transparent 32%)}
+.hero-picture:after{background:linear-gradient(120deg,#4932ad4d,transparent 57%)}
+.hero-glow{background:radial-gradient(ellipse,#4631ce66,transparent 65%)}
+.hero-content{padding:clamp(83px,7vw,116px) 0 65px clamp(29px,5.5vw,100px);max-width:660px}
+.hero-kicker{display:inline-block;font:900 11px 'Nunito',sans-serif;letter-spacing:2.2px;
+  background:#7bdbff;color:#191344;border:2px solid #241a90;border-radius:99px;padding:8px 13px;
+  transform:rotate(-2deg);box-shadow:3px 4px 0 #4839b5;margin-bottom:24px}
+.hero-title{font:600 clamp(48px,5.5vw,83px)/1.03 'Fredoka',sans-serif;letter-spacing:-.7px;
+  text-shadow:3px 5px 0 #1b144d,0 10px 30px #040219cc;margin-bottom:20px}
+.hero-meta{font-weight:800;color:#e8e4ff}.hero-meta .pill{border:2px solid #79dfff;
+  border-radius:100px;background:#282175;color:#dbf8ff;padding:5px 12px}.hero-meta .dot{color:#91edff}
+.hero-description{font:700 15px/1.7 'Nunito',sans-serif;color:#e6e4fb;max-width:495px}
+.btn{font-family:'Nunito',sans-serif;font-weight:900;border-radius:14px;box-shadow:3px 4px 0 #17114f;
+  transition:transform .18s,box-shadow .18s}
+.btn:hover{transform:translateY(-2px);box-shadow:3px 6px 0 #17114f}
+.btn-primary{background:linear-gradient(110deg,#77dfff,#3bb4f8);color:#11124c;border:2px solid #91ebff}
+.btn-primary:hover{background:linear-gradient(110deg,#a8efff,#6bcdfd)}
+.btn-outline{background:#322565;border:2px solid #6e5ba8;color:#fff}
+.btn-outline:hover{background:#4f3b9f;border-color:#a393ff}
+.hero-slide-arrows button{background:#2e237baf;border:2px solid #8c84e7;border-radius:12px}
+.hero-dot{background:#9c91d8bb}.hero-dot.active{background:#72e4ff;box-shadow:0 0 12px #69dfff}
+.content{margin-top:25px;padding:0 clamp(17px,3vw,54px) 75px}
+.universe-ribbon{display:flex;justify-content:space-between;align-items:center;gap:26px;
+  border-radius:22px;border:2px solid #5d4fb6;background:linear-gradient(105deg,#29195e,#191444 65%,#1b265c);
+  margin-bottom:37px;padding:21px 28px;position:relative;overflow:hidden;box-shadow:0 11px 37px #05021c70}
+.universe-ribbon:after{content:'✦';position:absolute;right:33%;top:-32px;font-size:93px;color:#7ccffe22;pointer-events:none}
+.ribbon-main{display:flex;flex-direction:column;gap:4px}.ribbon-eyebrow{font:900 11px 'Nunito',sans-serif;
+  letter-spacing:1.3px;color:#78ddff}.ribbon-main strong{font:600 clamp(22px,2.2vw,34px) 'Fredoka',sans-serif}
+.ribbon-main strong em{font-style:normal;color:#71deff}.ribbon-actions{display:flex;flex-wrap:wrap;gap:9px}
+.ribbon-actions button{border-radius:100px;border:2px solid #7a6cce;background:#413193;color:#fff;
+  font:900 12px 'Nunito',sans-serif;padding:9px 13px;transition:transform .18s,background .18s}
+.ribbon-actions button:hover{transform:translateY(-3px);background:#6855d2}
+.section{margin-bottom:43px}.section-heading{gap:12px;margin-bottom:16px}
+.section-heading:before{content:'✦';color:#75dcff;font-size:22px;text-shadow:0 0 12px #75dcff88}
+.section-heading h2{font:600 clamp(23px,2vw,30px) 'Fredoka',sans-serif;letter-spacing:0}
+.section-arrow{color:#80dcff}.section-subtitle{color:#c0b8e7;font-weight:800}
+.cards-track{gap:18px;scrollbar-color:#7264c9 transparent}
+.show-card{border:2px solid #5b4caa;border-radius:19px;background:#201751;
+  box-shadow:0 10px 0 -6px #49378b,0 20px 40px #06031877}
+.show-card:hover{border-color:#83dfff;transform:translateY(-6px) rotate(-.4deg);
+  box-shadow:0 10px 0 -5px #5c64d6,0 26px 46px #050116b8}
+.card-image{background-color:#24194f}.card-shade{
+  background:linear-gradient(180deg,#05032300 28%,#16103e5c 56%,#100b2af5 100%)}
+.card-tag{border:2px solid #a3e8ff;background:#4b3ec4;transform:rotate(-3deg);
+  box-shadow:2px 3px 0 #140f52;border-radius:8px;font-size:10px}
+.card-tag.soon{background:#6849a6;border-color:#d0bcff}
+.card-tag.done{background:#087b78;border-color:#9bffe9}
+.card-tag.edit{background:#8a429f;border-color:#ecbbff}
+.card-title{font:600 24px/1.05 'Fredoka',sans-serif;letter-spacing:0}
+.card-status{color:#e1dafa;font-weight:700}
+.catalog-page{padding-top:75px}.page-title{font:600 clamp(39px,4vw,60px) 'Fredoka',sans-serif;letter-spacing:0}
+.page-lede{color:#c7c1e8;font-weight:700}
+.filter-chip{border:2px solid #6657ba;background:#271d5b;color:#e5dcff;font-weight:900}
+.filter-chip:hover,.filter-chip.active{background:#5d51dc;border-color:#86e6ff}
+.projects-count{color:#c0b8e3}.empty-state{background:#21154a;border:2px dashed #7966c6}
+.empty-state h3,.modal-title{font-family:'Fredoka',sans-serif;font-weight:600}
+.footer{background:#110d30;border-top:2px solid #4f40ad}.footer-brand{font-family:'Fredoka',sans-serif;color:white}
+.footer-brand em{color:#81e6ff}
+.project-modal{background:#19123c;border:2px solid #7566cd;border-radius:21px;box-shadow:0 20px 0 -9px #4a3db1,0 35px 90px #030110cc}
+.modal-hero:after{background:linear-gradient(0deg,#19123c,#19123c0d 76%)}
+.modal-info{color:#ddd7f5}.modal-close{background:#332481;border:2px solid #9b8be3}
+.status-chip{color:#8adfff}.episode{border-top:1px solid #6a55ae77}
+.episode-thumb{background:#38297a}.notice{background:#30245d;color:#e1dcfc;border-left:4px solid #76ddff}
+.bottom-nav{background:#17103ef5;border-top:2px solid #6655c1}.bottom-nav button.active{color:#84ddff}
+@media(max-width:1300px){
+  .topbar{gap:12px}.brand-logo-viewport{width:125px;height:73px}
+  .brand-logo-viewport img{width:125px;height:125px;top:-27px}
+  .desktop-nav{gap:5px}.nav-link{font-size:12px;padding:8px 6px}.searchbox{min-width:148px}
+}
+@media(max-width:760px){
+  .topbar{height:70px;padding:0 15px}
+  .brand-logo-viewport{width:113px;height:66px}.brand-logo-viewport img{width:113px;height:113px;top:-24px}
+  .brand-play-mark{font-size:10px;letter-spacing:1px;padding:4px 7px}
+  .hero{margin:84px 10px 0;min-height:530px;height:min(720px,calc(100svh - 115px));border-radius:22px}
+  .hero-picture{background-position:62% 12%}.hero-picture:before{
+    background:linear-gradient(0deg,#12103a 0%,#151243e8 32%,#1512436c 68%,#15124324 100%)}
+  .hero:after{font-size:19px;letter-spacing:6px;right:11px;top:11px}
+  .hero-content{padding:170px 19px 26px;position:absolute;bottom:0;left:0;right:0}
+  .hero-kicker{font-size:9px;letter-spacing:1.3px;padding:6px 9px;margin-bottom:15px}
+  .hero-title{font-size:clamp(40px,8.5vw,58px);letter-spacing:-.25px;line-height:1.04;margin-bottom:13px}
+  .hero-description{font-size:12px}.hero-meta{font-size:11px}.hero-dots{right:15px;top:18px}
+  .content{margin-top:24px;padding:0 15px 70px}
+  .universe-ribbon{display:block;margin-bottom:32px;padding:21px 17px;border-radius:20px}
+  .ribbon-eyebrow{font-size:10px}.ribbon-main strong{display:block;font-size:25px;line-height:1.2;margin:6px 0 18px}
+  .ribbon-actions{gap:7px}.ribbon-actions button{font-size:11px;padding:7px 10px}
+  .section-heading h2{font-size:22px}.section-heading:before{font-size:19px}
+  .cards-track{gap:13px}.card-title{font-size:21px}
+  .catalog-page{margin-top:70px;padding:40px 16px 110px}.modal-title{font-size:30px}
+}
+@media(max-width:420px){
+  .hero{margin-left:7px;margin-right:7px}
+  .hero-content{padding:170px 15px 24px}.hero-title{font-size:41px}
+  .ribbon-main strong{font-size:23px}.ribbon-actions button{padding:7px 8px}
+  .catalog-grid .card-title{font-size:18px}
+}
