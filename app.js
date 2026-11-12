@@ -30,6 +30,7 @@
   };
   const saved = new Set(JSON.parse(localStorage.getItem('dw-play-favorites') || '[]'));
   let view = 'inicio'; let query = ''; let filter = 'Todos'; let heroIndex = 0; let toastTimeout;
+  let currentProjectId = null; let detailsTab = 'episodios'; let returnView = 'inicio';
   const main = document.getElementById('main-content');
   const modalLayer = document.getElementById('modal-layer');
   const modalContent = document.getElementById('modal-content');
@@ -42,19 +43,89 @@
   function card(p){return '<button class="show-card" data-open="'+safe(p.id)+'" aria-label="Ver detalhes de '+safe(p.title)+'"><span class="card-image" style="background-image:'+safe(getImage(p))+'"></span>'+(!p.image?'<span class="card-placeholder">DW</span>':'')+'<span class="card-shade"></span><span class="card-tag '+safe(p.tagClass||'')+'">'+safe(p.tag)+'</span><span class="card-text"><span class="card-title">'+safe(p.title)+'</span><span class="card-status">'+safe(p.genre)+' · '+safe(p.status)+'</span></span></button>'}
   function section(title,arr,subtitle=''){if(!arr.length)return '';return '<section class="section"><div class="section-heading"><h2>'+safe(title)+'</h2><span class="section-arrow">›</span>'+(subtitle?'<span class="section-subtitle">'+safe(subtitle)+'</span>':'')+'</div><div class="cards-track">'+arr.map(card).join('')+'</div></section>'}
   function renderHero(){let p=heroProjects[heroIndex];return '<section class="hero" aria-label="Projeto em destaque"><div class="hero-picture" style="background-image:'+safe(getImage(p))+'"></div><div class="hero-glow"></div><div class="hero-content"><p class="hero-kicker">✦ DUBLADO PELA DUBWORKS</p><h1 class="hero-title">'+safe(p.title)+'</h1><div class="hero-meta"><span class="pill">'+safe(p.kind==='Animes'?'Anime':'Animação')+'</span><span>'+safe(p.genre)+'</span><span class="dot">•</span><span>'+safe(p.status)+'</span></div><p class="hero-description">'+safe(p.description)+'</p><div class="hero-buttons"><button class="btn btn-primary" data-open="'+safe(p.id)+'">'+icons.info+' Conhecer projeto</button><button class="btn btn-outline" data-favorite="'+safe(p.id)+'">'+(saved.has(p.id)?icons.check:icons.plus)+' '+(saved.has(p.id)?'Na minha lista':'Minha lista')+'</button></div></div><div class="hero-slide-arrows"><button data-hero="prev" aria-label="Destaque anterior">'+icons.left+'</button><button data-hero="next" aria-label="Próximo destaque">'+icons.chevron+'</button></div><div class="hero-dots">'+heroProjects.map((a,i)=>'<button aria-label="Ver destaque '+(i+1)+'" class="hero-dot '+(i===heroIndex?'active':'')+'" data-hero-to="'+i+'"></button>').join('')+'</div></section>'}
-  function renderHome(){let active=projects.filter(p=>['Em andamento','Em edição'].includes(p.status));let soon=projects.filter(isSoon);let finished=projects.filter(p=>p.episodes.some(e=>e.status.includes('Finalizado')));main.innerHTML=renderHero()+'<div class="content">'+"<section class=\"universe-ribbon\" aria-label=\"Explore o universo da DubWorks\"><div class=\"ribbon-main\"><span class=\"ribbon-eyebrow\">✦ BEM-VINDO AO NOSSO UNIVERSO</span><strong>Vozes que <em>encontram histórias.</em></strong></div><div class=\"ribbon-actions\"><button data-view=\"animes\">✦ Animes</button><button data-view=\"animacoes\">✿ Animações</button><button data-view=\"embreve\">◈ Em breve</button></div></section>"+section('Destaques da DubWorks',[projects[0],projects[1],projects[2],projects[3],projects[4]],'Projetos reais do nosso acervo')+section('Projetos em andamento',active)+section('Em breve na DubWorks',soon)+section('Episódios finalizados',finished,'Ainda não significa disponível para assistir')+'</div>'}
+  function renderHome(){
+    const active=projects.filter(p=>['Em andamento','Em edição'].includes(p.status));
+    const soon=projects.filter(isSoon);
+    const finished=projects.filter(p=>p.episodes.some(e=>e.status.includes('Finalizado')));
+    main.innerHTML=renderHero()+'<div class="content">'
+      +section('Destaques da DubWorks',[projects[0],projects[1],projects[2],projects[3],projects[4]],'Projetos reais do nosso acervo')
+      +section('Projetos em andamento',active)
+      +section('Em breve na DubWorks',soon)
+      +section('Episódios finalizados',finished,'Ainda não significa disponível para assistir')
+      +'</div>';
+  }
   function renderCatalog(){let list=projects.filter(p=>(view==='catalogo'||view==='favoritos'||(view==='animes'&&p.kind==='Animes')||(view==='animacoes'&&p.kind==='Desenhos')||(view==='embreve'&&isSoon(p)))).filter(p=>view!=='favoritos'||saved.has(p.id)).filter(p=>filter==='Todos'||(filter==='Em produção'&&['Em andamento','Em edição'].includes(p.status))||(filter==='Em breve'&&isSoon(p))||(filter==='Com episódios'&&p.episodes.length>0)).filter(p=>(p.title+' '+p.genre+' '+p.description).toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR')));let titles={catalogo:'Explore o catálogo',animes:'Animes',animacoes:'Desenhos e animações',embreve:'Em breve',favoritos:'Minha lista'};let empty=view==='favoritos'?'Adicione seus projetos favoritos pelo botão “Minha lista”.':'Experimente outro termo ou filtro para encontrar um projeto.';main.innerHTML='<div class="catalog-page"><h1 class="page-title">'+(query?'Resultados da busca':titles[view]||titles.catalogo)+'</h1><p class="page-lede">'+(view==='favoritos'?'Os projetos que você salvou neste navegador.':'Conheça os projetos registrados pela DubWorks. O catálogo não indica que os vídeos já estão disponíveis.')+'</p><div class="filter-strip">'+['Todos','Em produção','Em breve','Com episódios'].map(f=>'<button class="filter-chip '+(filter===f?'active':'')+'" data-filter="'+safe(f)+'">'+safe(f)+'</button>').join('')+'</div><div class="projects-count">'+list.length+' '+(list.length===1?'projeto encontrado':'projetos encontrados')+'</div>'+(list.length?'<div class="catalog-grid">'+list.map(card).join('')+'</div>':'<div class="empty-state"><div class="empty-icon">✦</div><h3>Nenhum projeto por aqui</h3><p>'+safe(empty)+'</p><button class="btn btn-primary" data-view="catalogo">Explorar o catálogo</button></div>')+'</div>'}
-  function render(){updateNav();if(view==='inicio'&&!query)renderHome();else renderCatalog();}
+  function render(){updateNav();if(currentProjectId)renderProjectDetail();else if(view==='inicio'&&!query)renderHome();else renderCatalog();}
   function updateNav(){document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));}
-  function navigate(next){view=next;query='';search.value='';filter='Todos';render();window.scrollTo({top:0,behavior:'smooth'});}
+  function navigate(next){currentProjectId=null;view=next;query='';search.value='';filter='Todos';if(location.hash!=='#'+next)history.pushState({},'','#'+next);render();window.scrollTo({top:0,behavior:'smooth'});}
   function showToast(t){let el=document.getElementById('toast');el.textContent=t;el.classList.add('visible');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('visible'),2800)}
-  function toggleFavorite(id){if(saved.has(id)){saved.delete(id);showToast('Removido da sua lista.')}else{saved.add(id);showToast('Adicionado à sua lista!')}localStorage.setItem('dw-play-favorites',JSON.stringify([...saved]));render();if(!modalLayer.hidden)openProject(id)}
-  function openProject(id){let p=projects.find(q=>q.id===id);if(!p)return;let episodes=p.episodes.length?p.episodes.map(e=>'<div class="episode"><span class="episode-thumb">'+icons.play+'</span><div><div class="episode-title">EP '+e.number+' — '+safe(e.name)+'</div><div class="episode-note">'+safe(e.status)+'</div><small>Vídeo indisponível no protótipo</small></div></div>').join(''):'<p class="modal-info">Os episódios deste projeto ainda não foram cadastrados para exibição.</p>';modalContent.innerHTML='<div class="modal-hero" style="background-image:'+safe(getImage(p))+'"></div><button class="modal-close" data-close="true" aria-label="Fechar detalhes">×</button><div class="modal-body"><h2 class="modal-title" id="modal-title">'+safe(p.title)+'</h2><div class="status-chip">● '+safe(p.status)+' · '+safe(p.kind)+'</div><p class="modal-info">'+safe(p.description)+'</p><div class="modal-actions"><button class="btn btn-primary" data-favorite="'+safe(p.id)+'">'+(saved.has(p.id)?icons.check+' Na minha lista':icons.plus+' Adicionar à lista')+'</button><button class="btn btn-outline" data-close="true">Voltar ao catálogo</button></div><h3 class="episode-heading">Episódios</h3>'+episodes+'<p class="notice">Esta é uma demonstração. A reprodução de episódios completos será habilitada apenas quando os arquivos e os direitos de exibição estiverem regularizados.</p></div>';modalLayer.hidden=false;document.body.style.overflow='hidden';modalContent.querySelector('.modal-close').focus()}
-  function closeModal(){modalLayer.hidden=true;document.body.style.overflow=''}
-  document.addEventListener('click', e=>{let n=e.target.closest('[data-close],[data-open],[data-favorite],[data-view],[data-filter],[data-hero],[data-hero-to]');if(!n)return;if(n.dataset.close){closeModal();return}if(n.dataset.open){openProject(n.dataset.open);return}if(n.dataset.favorite){toggleFavorite(n.dataset.favorite);return}if(n.dataset.view){navigate(n.dataset.view);return}if(n.dataset.filter){filter=n.dataset.filter;render();return}if(n.dataset.hero){heroIndex=(heroIndex+(n.dataset.hero==='next'?1:heroProjects.length-1))%heroProjects.length;render();return}if(n.dataset.heroTo){heroIndex=Number(n.dataset.heroTo);render();return}});
-  search.addEventListener('input',e=>{query=e.target.value.trim();if(query)view='catalogo';filter='Todos';render()});
+  function toggleFavorite(id){if(saved.has(id)){saved.delete(id);showToast('Removido da sua lista.')}else{saved.add(id);showToast('Adicionado à sua lista!')}localStorage.setItem('dw-play-favorites',JSON.stringify([...saved]));render();if(currentProjectId===id)renderProjectDetail()}
+  function renderProjectDetail(){
+    const p=projects.find(q=>q.id===currentProjectId);
+    if(!p){currentProjectId=null;renderHome();return}
+    const eps=p.episodes.length
+      ?p.episodes.map(e=>'<article class="detail-episode"><div class="episode-cover" style="background-image:'+safe(getImage(p))+'"><span class="episode-index">EP '+safe(e.number)+'</span></div><div class="detail-episode-copy"><div class="detail-episode-title">'+safe(e.name)+'</div><div class="detail-episode-status">'+safe(e.status)+'</div><p class="episode-availability">Vídeo ainda não disponível para reprodução.</p></div></article>').join('')
+      :'<div class="detail-empty"><strong>Os episódios estão a caminho.</strong><p>Assim que forem preparados e autorizados para exibição, aparecerão nesta página.</p></div>';
+    const info='<div class="detail-about"><h2>Sobre este projeto</h2><p>'+safe(p.description)+'</p><dl><div><dt>Categoria</dt><dd>'+safe(p.kind)+'</dd></div><div><dt>Gênero</dt><dd>'+safe(p.genre)+'</dd></div><div><dt>Situação</dt><dd>'+safe(p.status)+'</dd></div><div><dt>Produção</dt><dd>DubWorks</dd></div></dl></div>';
+    const favoriteText=saved.has(p.id)?'✓ Na minha lista':'＋ Adicionar à minha lista';
+    main.innerHTML='<div class="detail-page">'
+      +'<section class="detail-hero" aria-label="Detalhes de '+safe(p.title)+'">'
+      +'<div class="detail-art" style="background-image:'+safe(getImage(p))+'"></div>'
+      +'<button class="detail-back" data-back="true" aria-label="Voltar">← Voltar</button>'
+      +'<div class="detail-hero-body"><span class="detail-eyebrow">✦ PROJETO DUBWORKS</span>'
+      +'<h1>'+safe(p.title)+'</h1>'
+      +'<div class="detail-meta"><span class="detail-state">'+safe(p.status)+'</span><span>'+safe(p.kind)+'</span><span>'+safe(p.genre)+'</span></div>'
+      +'<p class="detail-description">'+safe(p.description)+'</p>'
+      +'<div class="detail-actions"><button class="btn btn-primary" data-scroll-episodes="true">Ver episódios ↓</button>'
+      +'<button class="btn btn-outline" data-favorite="'+safe(p.id)+'">'+favoriteText+'</button></div>'
+      +'</div></section>'
+      +'<div class="detail-content"><div class="detail-tabs" role="tablist" aria-label="Informações do projeto">'
+      +'<button role="tab" aria-selected="'+(detailsTab==='episodios')+'" class="'+(detailsTab==='episodios'?'active':'')+'" data-tab="episodios">Episódios</button>'
+      +'<button role="tab" aria-selected="'+(detailsTab==='detalhes')+'" class="'+(detailsTab==='detalhes'?'active':'')+'" data-tab="detalhes">Detalhes</button>'
+      +'</div><section class="detail-panel" id="episodios" role="tabpanel">'
+      +(detailsTab==='episodios'?'<div class="detail-section-heading"><h2>Episódios</h2><span>'+p.episodes.length+' cadastrado(s)</span></div><div class="detail-episodes">'+eps+'</div>':info)
+      +'<div class="detail-rights">A publicação e o download dos episódios dependem de arquivos próprios e das autorizações de exibição. Não há episódios reproduzíveis nesta demonstração.</div>'
+      +'</section><section class="detail-related">'
+      +section('Você também pode gostar',projects.filter(q=>q.id!==p.id&&q.kind===p.kind).slice(0,5))
+      +'</section></div></div>';
+  }
+  function openProject(id){
+    if(!projects.some(p=>p.id===id))return;
+    returnView=currentProjectId?returnView:view;
+    currentProjectId=id;detailsTab='episodios';
+    if(location.hash!=='#projeto/'+encodeURIComponent(id))history.pushState({},'','#projeto/'+encodeURIComponent(id));
+    render();window.scrollTo({top:0,behavior:'smooth'});
+  }
+  function closeProject(){navigate(returnView||'inicio');}
+  function syncRoute(){
+    const hash=decodeURIComponent(location.hash.replace(/^#/,''));
+    if(hash.startsWith('projeto/')){
+      const id=hash.slice(8);
+      if(projects.some(p=>p.id===id)){currentProjectId=id;detailsTab='episodios';}
+      else currentProjectId=null;
+    }else{
+      const allowed=['inicio','catalogo','animes','animacoes','embreve','favoritos'];
+      currentProjectId=null;view=allowed.includes(hash)?hash:'inicio';
+    }
+    render();window.scrollTo({top:0,behavior:'instant'});
+  }
+  document.addEventListener('click',e=>{
+    const n=e.target.closest('[data-close],[data-open],[data-back],[data-favorite],[data-view],[data-filter],[data-hero],[data-hero-to],[data-tab],[data-scroll-episodes]');
+    if(!n)return;
+    if(n.dataset.close||n.dataset.back){closeProject();return}
+    if(n.dataset.open){openProject(n.dataset.open);return}
+    if(n.dataset.favorite){toggleFavorite(n.dataset.favorite);return}
+    if(n.dataset.view){navigate(n.dataset.view);return}
+    if(n.dataset.filter){filter=n.dataset.filter;render();return}
+    if(n.dataset.hero){heroIndex=(heroIndex+(n.dataset.hero==='next'?1:heroProjects.length-1))%heroProjects.length;render();return}
+    if(n.dataset.heroTo){heroIndex=Number(n.dataset.heroTo);render();return}
+    if(n.dataset.tab){detailsTab=n.dataset.tab;renderProjectDetail();return}
+    if(n.dataset.scrollEpisodes){detailsTab='episodios';renderProjectDetail();document.querySelector('.detail-tabs')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  });
+  search.addEventListener('input',e=>{query=e.target.value.trim();if(query){view='catalogo';currentProjectId=null;}filter='Todos';render()});
   document.getElementById('mobile-search-btn').addEventListener('click',()=>{navigate('catalogo');document.getElementById('topbar').classList.toggle('search-open');if(document.getElementById('topbar').classList.contains('search-open'))search.focus();});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modalLayer.hidden)closeModal();});
-  window.addEventListener('hashchange',()=>{if(location.hash==='#inicio'&&view!=='inicio')navigate('inicio')});
-  render();
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&currentProjectId)closeProject();});
+  window.addEventListener('hashchange',syncRoute);
+  window.addEventListener('popstate',syncRoute);
+  syncRoute();
 })();
