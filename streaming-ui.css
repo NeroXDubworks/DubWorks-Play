@@ -1,0 +1,118 @@
+/* Interações de catálogo e telas completas de projetos — DubWorks Play */
+:root{--interaction-ease:cubic-bezier(.22,.65,.18,1)}
+.show-card{position:relative;will-change:transform;transition:transform .34s var(--interaction-ease),box-shadow .32s ease,border-color .32s ease}
+.show-card .card-image{transition:transform .62s var(--interaction-ease),filter .4s ease}
+.show-card .card-text{transition:transform .36s var(--interaction-ease)}
+.show-card .card-title{transition:transform .35s var(--interaction-ease)}
+.show-card .card-text:after{
+  content:'Conhecer projeto  ↗';display:block;max-height:0;opacity:0;overflow:hidden;
+  color:#8be6ff;font:900 12px 'Nunito',sans-serif;line-height:1.3;
+  transform:translateY(6px);transition:max-height .28s,opacity .24s,transform .28s
+}
+@media(hover:hover){
+  .show-card:hover .card-text{transform:translateY(-4px)}
+  .show-card:hover .card-title{transform:translateY(-3px)}
+  .show-card:hover .card-image{transform:scale(1.11);filter:saturate(1.18) brightness(.93)}
+  .show-card:hover .card-text:after{max-height:28px;opacity:1;transform:translateY(0)}
+}
+.show-card:focus-visible .card-text,.show-card:active .card-text{transform:translateY(-4px)}
+.show-card:focus-visible .card-text:after,.show-card:active .card-text:after{max-height:28px;opacity:1;transform:translateY(0)}
+.show-card:focus-visible .card-image,.show-card:active .card-image{transform:scale(1.08)}
+.show-card:active{transform:translateY(-3px) scale(.985)}
+/* Ajuste: sem faixa duplicada entre o banner e o catálogo */
+.content{margin-top:27px}
+.section:first-child{margin-top:0}
+/* Detalhe em tela cheia, inspirado em experiências de streaming */
+.detail-page{margin-top:88px;background:#0e0a2a;min-height:80vh;padding-bottom:55px}
+.detail-hero{
+  height:min(620px,55vw);min-height:500px;position:relative;isolation:isolate;overflow:hidden;
+  background:#171044
+}
+.detail-art{position:absolute;z-index:-1;inset:0;background-size:cover;background-position:center 33%;
+  filter:saturate(1.07)}
+.detail-art:before{content:'';position:absolute;inset:0;background:
+  linear-gradient(90deg,#0c0829 0%,#17103de8 26%,#1d15537a 57%,transparent 95%),
+  linear-gradient(0deg,#0e0a2a 0%,#0e0a2ad0 8%,transparent 47%)}
+.detail-back{position:absolute;top:27px;left:clamp(25px,5.5vw,96px);z-index:2;
+  background:#271b66ad;border:2px solid #7368c5;color:#fff;border-radius:100px;padding:10px 17px;
+  font:900 13px 'Nunito',sans-serif;transition:background .18s,transform .18s;backdrop-filter:blur(8px)}
+.detail-back:hover{background:#5543b8;transform:translateX(-3px)}
+.detail-hero-body{position:absolute;left:clamp(25px,5.5vw,96px);bottom:76px;
+  width:min(640px,52vw)}
+.detail-eyebrow{display:inline-flex;background:#65d4fc;color:#1d174a;border:2px solid #34249f;
+  transform:rotate(-2deg);padding:7px 12px;border-radius:99px;font:900 11px 'Nunito',sans-serif;
+  letter-spacing:1.4px;box-shadow:3px 4px 0 #262075}
+.detail-hero h1{font:600 clamp(50px,5.6vw,87px)/1.02 'Fredoka',sans-serif;letter-spacing:-1px;
+  text-shadow:3px 4px 0 #120b39,0 8px 28px #040215ee;margin:22px 0 18px}
+.detail-meta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;color:#ece6ff;
+  font:800 13px 'Nunito',sans-serif}
+.detail-state{background:#271b63a6;border:1.5px solid #8adfff;border-radius:99px;padding:5px 11px;color:#91e7ff}
+.detail-description{max-width:520px;line-height:1.7;font:700 15px 'Nunito',sans-serif;
+  color:#e8e1ff;text-shadow:0 2px 15px #07051ce0;margin:18px 0 22px}
+.detail-actions{display:flex;gap:12px;flex-wrap:wrap}
+.detail-content{max-width:1500px;margin:0 auto;padding:0 clamp(25px,5.5vw,96px) 50px}
+.detail-tabs{position:relative;display:flex;gap:28px;border-bottom:2px solid #40327b;
+  padding-top:3px;margin-bottom:30px;scroll-margin-top:120px}
+.detail-tabs button{background:transparent;border:0;border-bottom:4px solid transparent;
+  margin-bottom:-2px;padding:14px 6px;color:#aea5db;font:900 16px 'Nunito',sans-serif;
+  transition:color .2s,border-color .2s}
+.detail-tabs button:hover,.detail-tabs button.active{color:white}
+.detail-tabs button.active{border-bottom-color:#7cddff}
+.detail-panel{min-height:200px}
+.detail-section-heading{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.detail-section-heading h2,.detail-about h2{font:600 27px 'Fredoka',sans-serif;margin:0;color:white}
+.detail-section-heading span{color:#a8a0d5;font:800 12px 'Nunito',sans-serif}
+.detail-episodes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.detail-episode{display:flex;align-items:center;gap:17px;min-height:132px;
+  border:2px solid #5749a8;background:#201749;padding:12px;border-radius:18px;
+  transition:transform .25s var(--interaction-ease),border-color .25s,background .25s}
+.detail-episode:hover{transform:translateY(-4px);border-color:#8addff;background:#28205b}
+.episode-cover{width:160px;aspect-ratio:1.6;flex-shrink:0;background-color:#291b65;
+  background-size:cover;background-position:center;border-radius:12px;position:relative;overflow:hidden}
+.episode-cover:before{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#0e0a2baa,transparent 65%)}
+.episode-index{position:absolute;bottom:8px;left:8px;z-index:2;background:#5540c7;
+  border:1px solid #b6b0ff;color:white;border-radius:7px;padding:3px 7px;font:900 10px 'Nunito',sans-serif}
+.detail-episode-copy{min-width:0}.detail-episode-title{font:600 20px 'Fredoka',sans-serif;color:white}
+.detail-episode-status{font:900 12px 'Nunito',sans-serif;color:#83e6ff;margin:6px 0}
+.episode-availability{font:700 12px 'Nunito',sans-serif;color:#beb6e7;line-height:1.5;margin:4px 0 0}
+.detail-empty{padding:40px;border:2px dashed #6859ae;border-radius:17px;
+  color:#d6cffa;background:#1d1647}
+.detail-empty strong{font:600 25px 'Fredoka',sans-serif}
+.detail-empty p{margin:9px 0 0;font-size:14px}
+.detail-rights{margin-top:24px;border-left:4px solid #77dfff;background:#21194d;border-radius:0 12px 12px 0;
+  padding:13px 18px;color:#d7d1ee;font:700 12px/1.6 'Nunito',sans-serif}
+.detail-related{margin-top:48px}.detail-related .section{margin-bottom:0}
+.detail-about{max-width:780px;background:#20164e;border:2px solid #5744a2;border-radius:18px;padding:26px}
+.detail-about p{font:700 15px/1.75 'Nunito',sans-serif;color:#e9e1ff}
+.detail-about dl{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:0}
+.detail-about dl>div{border-top:1px solid #6758a0;padding-top:10px}
+.detail-about dt{color:#a9a0d6;font:800 12px 'Nunito',sans-serif;margin-bottom:3px}
+.detail-about dd{color:#f1eaff;font:900 15px 'Nunito',sans-serif;margin:0}
+@media(max-width:900px){.detail-episodes{grid-template-columns:1fr}.detail-hero-body{width:min(630px,75vw)}}
+@media(max-width:760px){
+  .detail-page{margin-top:70px;padding-bottom:65px}
+  .detail-hero{height:min(710px,calc(100svh - 85px));min-height:570px}
+  .detail-art{background-position:62% 15%}
+  .detail-art:before{background:linear-gradient(0deg,#0e0a2a 0%,#110e36fa 29%,#17114692 62%,#1711461c 100%)}
+  .detail-back{top:18px;left:16px;font-size:12px;padding:8px 13px}
+  .detail-hero-body{left:18px;right:18px;width:auto;bottom:32px}
+  .detail-eyebrow{font-size:9px;letter-spacing:1px;padding:6px 10px}
+  .detail-hero h1{font-size:clamp(39px,10vw,61px);letter-spacing:-.5px;margin:15px 0}
+  .detail-description{font-size:13px;line-height:1.55}
+  .detail-meta{font-size:11px;gap:7px}
+  .detail-content{padding:0 18px 70px}
+  .detail-tabs{scroll-margin-top:80px;margin-bottom:22px}
+  .detail-tabs button{font-size:14px}
+  .detail-episode{min-height:106px;padding:9px;gap:11px}
+  .episode-cover{width:105px}
+  .detail-episode-title{font-size:17px}
+  .detail-episode-status{font-size:11px}
+  .episode-availability{font-size:10px}
+  .detail-rights{font-size:11px}
+  .detail-section-heading h2{font-size:24px}
+  .detail-about{padding:18px}.detail-about dl{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  .show-card,.show-card .card-image,.show-card .card-text,.show-card .card-title,
+  .show-card .card-text:after,.detail-back,.detail-episode{transition:none!important}
+}
