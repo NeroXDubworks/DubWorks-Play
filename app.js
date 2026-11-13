@@ -464,7 +464,12 @@
         published:isPlayable(e)};
     },
     applyPublishedEpisodes(rows,metadata){
-      const known=new Map(projects.map(p=>[p.id,p]));
+      // Se uma URL de episódio é aberta diretamente antes da consulta ao Supabase,
+      // atualizar o player quando o registro publicado finalmente chegar.
+      const activeBefore=playerEpisode?episodeFor(
+        projects.find(p=>p.id===playerEpisode.projectId),playerEpisode.season,playerEpisode.number):null;
+      const beforePlayable=isPlayable(activeBefore);
+      const beforeDbId=activeBefore?.dbId||null;
       for(const p of projects){
         const details=metadata?.find(x=>x.slug===p.id);
         if(details){
@@ -485,7 +490,10 @@
         }
         p.episodes=[...merged.values()].sort((a,b)=>seasonNumber(a)-seasonNumber(b)||Number(a.number)-Number(b.number));
       }
-      if(!playerEpisode)render();
+      if(!playerEpisode){render();return}
+      const activeAfter=episodeFor(
+        projects.find(p=>p.id===playerEpisode.projectId),playerEpisode.season,playerEpisode.number);
+      if(!activeAfter||beforePlayable!==isPlayable(activeAfter)||beforeDbId!==(activeAfter.dbId||null))renderPlayer();
     },
     getGuestFavorites(){
       try{return JSON.parse(localStorage.getItem('dw-play-favorites')||'[]')}
