@@ -162,18 +162,10 @@
     };
     const favoriteLabel=saved.has(p.id)?'✓ Na minha lista':'＋ Minha lista';
     const firstReady=p.episodes.find(isPlayable);
-    const driveInline=firstReady?.mediaProvider==='google_drive';
-    const inlinePlayer='<aside class="dw-project-player" aria-label="Prévia dos episódios de '+safe(p.title)+'">'
-      +'<div class="dw-project-player-title"><span>▶ DUBWORKS PLAY</span><span>'+(firstReady?'T'+seasonNumber(firstReady)+' · EP '+safe(firstReady.number):'AGUARDANDO ESTREIA')+'</span></div>'
-      +(driveInline
-        ?'<div class="dw-drive-embed dw-drive-embed--project"><iframe class="dw-project-drive-frame" title="Assistir '+safe(firstReady.name)+' no Google Drive" src="'+safe(drivePreviewUrl(firstReady))+'" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe><span class="dw-drive-corner-shield" aria-hidden="true"></span></div>'
-        :'<div class="dw-project-player-empty" style="background-image:'+safe(getImage(p))+'"><span aria-hidden="true">▷</span><strong>Seu próximo episódio mora aqui</strong><small>Assim que for publicado, o player aparecerá nesta tela.</small></div>')
-      +(firstReady?'<button type="button" class="dw-project-player-open" data-episode="'+safe(p.id)+':'+seasonNumber(firstReady)+':'+safe(firstReady.number)+'">↗ Abrir página do episódio</button>':'')
-      +'</aside>';
     const heroButton=firstReady
       ?'<button class="btn btn-primary" data-episode="'+safe(p.id)+':'+seasonNumber(firstReady)+':'+safe(firstReady.number)+'">▶ Assistir agora</button>'
       :'<button class="btn btn-primary" data-scroll-episodes="true">▶ Ver episódios</button>';
-    main.innerHTML='<div class="detail-page">'
+    main.innerHTML='<div class="detail-page detail-page--catalog-only">'
       +'<section class="detail-hero" aria-label="Página de '+safe(p.title)+'">'
       +'<div class="detail-art" style="background-image:'+safe(getImage(p))+'"></div>'
       +'<button class="detail-back" data-back="true" aria-label="Voltar ao catálogo">← Voltar</button>'
@@ -188,7 +180,7 @@
       +'<button class="btn btn-outline" data-favorite="'+safe(p.id)+'">'+favoriteLabel+'</button>'
       +(canEdit()?'<button class="dw-edit-action dw-edit-series" data-edit-series="'+safe(p.id)+'">✎ Editar classificação e ano</button>':'')
       +'</div>'
-      +'</div>'+inlinePlayer+'</section>'
+      +'</div></section>'
       +'<div class="detail-content"><div class="detail-tabs" role="tablist" aria-label="Explorar '+safe(p.title)+'">'
       +['episodios','sugestoes','extras','detalhes'].map(t=>{
           const label={episodios:'Episódios',sugestoes:'Sugestões',extras:'Extras',detalhes:'Detalhes'}[t];
