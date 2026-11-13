@@ -110,13 +110,11 @@
     name=String(account.user_metadata?.full_name||account.user_metadata?.name||'').slice(0,80);
     role='spectator';
     renderAccount();
-    const [roleRes,profileRes]=await Promise.all([
-      api.rpc('current_user_role'),
-      api.from('profiles').select('display_name').eq('user_id',account.id).maybeSingle()
-    ]);
+    const {data:profile,error:profileError}=await api.from('profiles')
+      .select('display_name,role').eq('user_id',account.id).maybeSingle();
     if(expected!==epoch)return;
-    if(!roleRes.error&&roleLabels[roleRes.data])role=roleRes.data;
-    if(!profileRes.error&&profileRes.data?.display_name)name=profileRes.data.display_name;
+    if(!profileError&&profile&&roleLabels[profile.role])role=profile.role;
+    if(!profileError&&profile?.display_name)name=profile.display_name;
     try {await loadFavorites(account.id);}
     catch(error){console.error('Erro ao sincronizar favoritos',error);}
     if(expected!==epoch)return;
