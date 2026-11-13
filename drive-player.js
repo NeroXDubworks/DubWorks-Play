@@ -61,7 +61,7 @@
       const serie=season&&seriesById.get(season.series_id);
       if(!season||!serie)continue;
       rows.push({
-        slug:serie.slug,season:season.season_number,number:e.episode_number,
+        slug:serie.slug,dbId:e.id,season:season.season_number,number:e.episode_number,
         name:e.title,description:e.synopsis,
         thumbnailUrl:e.thumbnail_url,durationSeconds:e.duration_seconds,
         mediaProvider:e.media_provider,driveFileId:e.drive_file_id,
@@ -100,6 +100,13 @@
       +'</aside><form id="dw-admin-form" class="dw-admin-form">'
       +'<div class="dw-admin-grid">'
       +'<label class="dw-admin-field dw-field-full">Série / projeto<select id="dw-series-id" required>'+choices+'</select></label>'
+      +'<div class="dw-series-editor dw-field-full"><div class="dw-series-heading">Classificação indicativa e informações</div><div class="dw-series-fields">'
+      +'<label class="dw-admin-field">Classificação indicativa<select id="dw-series-rating"><option value="">Não definida</option>'
+      +['L','10','12','14','16','18'].map(x=>'<option value="'+x+'">'+(x==='L'?'Livre':x+' anos')+'</option>').join('')
+      +'</select></label>'
+      +'<label class="dw-admin-field">Ano de lançamento<input type="number" id="dw-series-year" min="1900" max="2100" placeholder="Ex.: 2016"></label></div>'
+      +'<button type="button" id="dw-series-save" class="dw-admin-secondary">✓ Salvar classificação e ano</button>'
+      +'<small>Use a classificação confirmada da obra. O ano é o do lançamento original, não necessariamente o da fandublagem.</small></div>'
       +'<label class="dw-admin-field">Temporada<input type="number" id="dw-season" min="1" max="999" value="1" required></label>'
       +'<label class="dw-admin-field">Episódio<input type="number" id="dw-episode" min="1" max="9999" value="1" required></label>'
       +'<label class="dw-admin-field dw-field-full">Título do episódio<input id="dw-episode-title" maxlength="200" required placeholder="Ex.: Mumkey Business"></label>'
@@ -150,15 +157,25 @@
     if(error||!['director','admin'].includes(p?.role))throw new Error('Seu usuário não tem permissão de publicação.');
     return api;
   }
-  async function openAdmin(){
+  async function openAdmin(initial={}){
     let api;
     try{api=await staffCheck()}
     catch(error){window.alert(error.message);return}
-    const {data,error}=await api.from('series').select('id,title,slug,status').eq('status','published').order('title');
+    const {data,error}=await api.from('series').select('id,title,slug,status,age_rating,release_year').eq('status','published').order('title');
     if(error){window.alert('Não foi possível carregar as séries do Supabase.');return}
     seriesList=data||[];
     if(!seriesList.length){window.alert('Ainda não existem séries cadastradas.');return}
-    if(editorOpen)return;
+    if(editorOpen){
+      if(initial?.slug){
+        const existingSeries=seriesList.find(x=>x.slug===initial.slug);
+        if(existingSeries)input('dw-series-id').value=existingSeries.id;
+        if(initial.season)input('dw-season').value=String(initial.season);
+        if(initial.episode)input('dw-episode').value=String(initial.episode);
+        setSeriesDetails();
+        await loadExistingEpisode();
+      }
+      return;
+    }
     editorOpen=true;
     const div=document.createElement('div');
     div.innerHTML=editorHTML();
@@ -176,11 +193,46 @@
     });
     input('dw-admin-form').addEventListener('submit',e=>{e.preventDefault();saveEpisode(true)});
     input('dw-admin-save').addEventListener('click',()=>saveEpisode(false));
+    input('dw-series-save').addEventListener('click',()=>saveSeriesInfo());
+    input('dw-series-id').addEventListener('change',setSeriesDetails);
     for(const id of ['dw-series-id','dw-season','dw-episode']){
       input(id).addEventListener('change',()=>loadExistingEpisode().catch(console.error));
     }
-    input('dw-series-id').focus();
+    if(initial?.slug){
+      const selected=seriesList.find(item=>item.slug===initial.slug);
+      if(selected)input('dw-series-id').value=selected.id;
+    }
+    if(initial?.season)input('dw-season').value=String(initial.season);
+    if(initial?.episode)input('dw-episode').value=String(initial.episode);
+    setSeriesDetails();
+    if(initial?.focusSeries)input('dw-series-rating').focus();
+    else input('dw-episode-title').focus();
     loadExistingEpisode().catch(console.error);
+  }
+  function setSeriesDetails(){
+    const selected=seriesList.find(x=>x.id===input('dw-series-id')?.value);
+    if(input('dw-series-rating'))input('dw-series-rating').value=selected?.age_rating||'';
+    if(input('dw-series-year'))input('dw-series-year').value=selected?.release_year||'';
+  }
+  async function saveSeriesInfo(){
+    const seriesId=input('dw-series-id')?.value;
+    const selected=seriesList.find(x=>x.id===seriesId);
+    if(!selected){notify('Série não encontrada.','error');return}
+    const rating=input('dw-series-rating').value;
+    const rawYear=input('dw-series-year').value.trim();
+    const year=rawYear?Number(rawYear):null;
+    if(rating&&!['L','10','12','14','16','18'].includes(rating)){notify('Classificação inválida.','error');return}
+    if(rawYear&&(!Number.isInteger(year)||year<1900||year>2100)){notify('Ano inválido.','error');return}
+    try{
+      const api=await staffCheck();
+      const {data,error}=await api.from('series')
+        .update({age_rating:rating||null,release_year:year,updated_at:new Date().toISOString()})
+        .eq('id',seriesId).select('id,age_rating,release_year').single();
+      if(error)throw error;
+      selected.age_rating=data.age_rating;selected.release_year=data.release_year;
+      await refreshPublic();
+      notify('Classificação indicativa e ano salvos com sucesso.','success');
+    }catch(error){console.error('DubWorks Play: dados da série',error);notify('Não foi possível salvar os dados da série.','error')}
   }
   function closeAdmin(){
     input('dw-admin-overlay')?.remove();
