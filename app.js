@@ -540,7 +540,14 @@
         }
         p.episodes=[...merged.values()].sort((a,b)=>seasonNumber(a)-seasonNumber(b)||Number(a.number)-Number(b.number));
       }
-      if(!playerEpisode){render();return}
+      if(!playerEpisode){
+        const desired=String(location.hash||'').replace(/^#/,'');
+        if(!currentProjectId&&(desired.startsWith('projeto/')||desired.startsWith('assistir/'))){
+          syncRoute();
+          return;
+        }
+        render();return;
+      }
       const activeAfter=episodeFor(
         projects.find(p=>p.id===playerEpisode.projectId),playerEpisode.season,playerEpisode.number);
       if(!activeAfter||beforePlayable!==isPlayable(activeAfter)||beforeDbId!==(activeAfter.dbId||null))renderPlayer();
