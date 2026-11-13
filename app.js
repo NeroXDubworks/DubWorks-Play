@@ -73,13 +73,20 @@
   const favorites = () => projects.filter(p=>saved.has(p.id));
   function card(p){return '<button class="show-card" data-open="'+safe(p.id)+'" aria-label="Ver detalhes de '+safe(p.title)+'"><span class="card-image" style="background-image:'+safe(getImage(p))+'"></span>'+(!p.image?'<span class="card-placeholder">DW</span>':'')+'<span class="card-shade"></span><span class="card-tag '+safe(p.tagClass||'')+'">'+safe(p.tag)+'</span><span class="card-text"><span class="card-title">'+safe(p.title)+'</span><span class="card-status">'+safe(p.genre)+' · '+safe(p.status)+'</span></span></button>'}
   function section(title,arr,subtitle=''){if(!arr.length)return '';return '<section class="section"><div class="section-heading"><h2>'+safe(title)+'</h2><span class="section-arrow">›</span>'+(subtitle?'<span class="section-subtitle">'+safe(subtitle)+'</span>':'')+'</div><div class="cards-track">'+arr.map(card).join('')+'</div></section>'}
-  function renderHero(){let p=heroProjects[heroIndex];return '<section class="hero" aria-label="Projeto em destaque"><div class="hero-picture" style="background-image:'+safe(getImage(p))+'"></div><div class="hero-glow"></div><div class="hero-content"><p class="hero-kicker">✦ DUBLADO PELA DUBWORKS</p><h1 class="hero-title">'+safe(p.title)+'</h1><div class="hero-meta"><span class="pill">'+safe(p.kind==='Animes'?'Anime':'Animação')+'</span><span>'+safe(p.genre)+'</span><span class="dot">•</span><span>'+safe(p.status)+'</span></div><p class="hero-description">'+safe(p.description)+'</p><div class="hero-buttons"><button class="btn btn-primary" data-open="'+safe(p.id)+'">'+icons.info+' Conhecer projeto</button><button class="btn btn-outline" data-favorite="'+safe(p.id)+'">'+(saved.has(p.id)?icons.check:icons.plus)+' '+(saved.has(p.id)?'Na minha lista':'Minha lista')+'</button></div></div><div class="hero-slide-arrows"><button data-hero="prev" aria-label="Destaque anterior">'+icons.left+'</button><button data-hero="next" aria-label="Próximo destaque">'+icons.chevron+'</button></div><div class="hero-dots">'+heroProjects.map((a,i)=>'<button aria-label="Ver destaque '+(i+1)+'" class="hero-dot '+(i===heroIndex?'active':'')+'" data-hero-to="'+i+'"></button>').join('')+'</div></section>'}
+  function renderHero(){
+    const featured=heroProjects.filter(item=>item.catalogVisible!==false);
+    const options=featured.length?featured:projects.filter(item=>item.catalogVisible!==false).slice(0,3);
+    if(!options.length)return '<section class="hero"><div class="hero-content"><h1>Bem-vindo ao DubWorks Play</h1><p>Nosso catálogo está sendo atualizado.</p></div></section>';
+    heroIndex=heroIndex%options.length;
+    let p=options[heroIndex];
+    return '<section class="hero" aria-label="Projeto em destaque"><div class="hero-picture" style="background-image:'+safe(getImage(p))+'"></div><div class="hero-glow"></div><div class="hero-content"><p class="hero-kicker">✦ DUBLADO PELA DUBWORKS</p><h1 class="hero-title">'+safe(p.title)+'</h1><div class="hero-meta"><span class="pill">'+safe(p.kind==='Animes'?'Anime':'Animação')+'</span><span>'+safe(p.genre)+'</span><span class="dot">•</span><span>'+safe(p.status)+'</span></div><p class="hero-description">'+safe(p.description)+'</p><div class="hero-buttons"><button class="btn btn-primary" data-open="'+safe(p.id)+'">'+icons.info+' Conhecer projeto</button><button class="btn btn-outline" data-favorite="'+safe(p.id)+'">'+(saved.has(p.id)?icons.check:icons.plus)+' '+(saved.has(p.id)?'Na minha lista':'Minha lista')+'</button></div></div><div class="hero-slide-arrows"><button data-hero="prev" aria-label="Destaque anterior">'+icons.left+'</button><button data-hero="next" aria-label="Próximo destaque">'+icons.chevron+'</button></div><div class="hero-dots">'+options.map((a,i)=>'<button aria-label="Ver destaque '+(i+1)+'" class="hero-dot '+(i===heroIndex?'active':'')+'" data-hero-to="'+i+'"></button>').join('')+'</div></section>'}
   function renderHome(){
-    const inProduction=projects.filter(p=>['Em andamento','Em edição'].includes(p.status));
-    const completed=projects.filter(p=>p.episodes.some(e=>e.status.includes('Finalizado')));
-    const animes=projects.filter(p=>p.kind==='Animes');
-    const cartoons=projects.filter(p=>p.kind==='Desenhos');
-    const upcoming=projects.filter(isSoon);
+    const visible=projects.filter(p=>p.catalogVisible!==false);
+    const inProduction=visible.filter(p=>['Em andamento','Em edição'].includes(p.status));
+    const completed=visible.filter(p=>p.episodes.some(e=>e.status.includes('Finalizado')));
+    const animes=visible.filter(p=>p.kind==='Animes');
+    const cartoons=visible.filter(p=>p.kind==='Desenhos');
+    const upcoming=visible.filter(isSoon);
     main.innerHTML=renderHero()+'<div class="content">'
       +section('Episódios concluídos',completed,'Produções concluídas, ainda não necessariamente publicadas')
       +section('Em produção na DubWorks',inProduction)
@@ -88,7 +95,7 @@
       +section('Em breve',upcoming)
       +'</div>';
   }
-  function renderCatalog(){let list=projects.filter(p=>(view==='catalogo'||view==='favoritos'||(view==='animes'&&p.kind==='Animes')||(view==='animacoes'&&p.kind==='Desenhos')||(view==='embreve'&&isSoon(p)))).filter(p=>view!=='favoritos'||saved.has(p.id)).filter(p=>filter==='Todos'||(filter==='Em produção'&&['Em andamento','Em edição'].includes(p.status))||(filter==='Em breve'&&isSoon(p))||(filter==='Com episódios'&&p.episodes.length>0)).filter(p=>(p.title+' '+p.genre+' '+p.description).toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR')));let titles={catalogo:'Explore o catálogo',animes:'Animes',animacoes:'Desenhos e animações',embreve:'Em breve',favoritos:'Minha lista'};let empty=view==='favoritos'?'Adicione seus projetos favoritos pelo botão “Minha lista”.':'Experimente outro termo ou filtro para encontrar um projeto.';main.innerHTML='<div class="catalog-page"><h1 class="page-title">'+(query?'Resultados da busca':titles[view]||titles.catalogo)+'</h1><p class="page-lede">'+(view==='favoritos'?'Os projetos que você salvou neste navegador.':'Conheça os projetos registrados pela DubWorks. O catálogo não indica que os vídeos já estão disponíveis.')+'</p><div class="filter-strip">'+['Todos','Em produção','Em breve','Com episódios'].map(f=>'<button class="filter-chip '+(filter===f?'active':'')+'" data-filter="'+safe(f)+'">'+safe(f)+'</button>').join('')+'</div><div class="projects-count">'+list.length+' '+(list.length===1?'projeto encontrado':'projetos encontrados')+'</div>'+(list.length?'<div class="catalog-grid">'+list.map(card).join('')+'</div>':'<div class="empty-state"><div class="empty-icon">✦</div><h3>Nenhum projeto por aqui</h3><p>'+safe(empty)+'</p><button class="btn btn-primary" data-view="catalogo">Explorar o catálogo</button></div>')+'</div>'}
+  function renderCatalog(){let list=projects.filter(p=>p.catalogVisible!==false).filter(p=>(view==='catalogo'||view==='favoritos'||(view==='animes'&&p.kind==='Animes')||(view==='animacoes'&&p.kind==='Desenhos')||(view==='embreve'&&isSoon(p)))).filter(p=>view!=='favoritos'||saved.has(p.id)).filter(p=>filter==='Todos'||(filter==='Em produção'&&['Em andamento','Em edição'].includes(p.status))||(filter==='Em breve'&&isSoon(p))||(filter==='Com episódios'&&p.episodes.length>0)).filter(p=>(p.title+' '+p.genre+' '+p.description).toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR')));let titles={catalogo:'Explore o catálogo',animes:'Animes',animacoes:'Desenhos e animações',embreve:'Em breve',favoritos:'Minha lista'};let empty=view==='favoritos'?'Adicione seus projetos favoritos pelo botão “Minha lista”.':'Experimente outro termo ou filtro para encontrar um projeto.';main.innerHTML='<div class="catalog-page"><h1 class="page-title">'+(query?'Resultados da busca':titles[view]||titles.catalogo)+'</h1><p class="page-lede">'+(view==='favoritos'?'Os projetos que você salvou neste navegador.':'Conheça os projetos registrados pela DubWorks. O catálogo não indica que os vídeos já estão disponíveis.')+'</p><div class="filter-strip">'+['Todos','Em produção','Em breve','Com episódios'].map(f=>'<button class="filter-chip '+(filter===f?'active':'')+'" data-filter="'+safe(f)+'">'+safe(f)+'</button>').join('')+'</div><div class="projects-count">'+list.length+' '+(list.length===1?'projeto encontrado':'projetos encontrados')+'</div>'+(list.length?'<div class="catalog-grid">'+list.map(card).join('')+'</div>':'<div class="empty-state"><div class="empty-icon">✦</div><h3>Nenhum projeto por aqui</h3><p>'+safe(empty)+'</p><button class="btn btn-primary" data-view="catalogo">Explorar o catálogo</button></div>')+'</div>'}
   function render(){updateNav();if(playerEpisode)renderPlayer();else if(currentProjectId)renderProjectDetail();else if(view==='inicio'&&!query)renderHome();else renderCatalog();}
   function updateNav(){document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));}
   function navigate(next){playerEpisode=null;currentProjectId=null;view=next;query='';search.value='';filter='Todos';if(location.hash!=='#'+next)history.pushState({},'','#'+next);render();window.scrollTo({top:0,behavior:'smooth'});}
@@ -115,7 +122,7 @@
   function renderProjectDetail(){
     const p=projects.find(q=>q.id===currentProjectId);
     if(!p){currentProjectId=null;renderHome();return}
-    const related=projects.filter(q=>q.id!==p.id&&q.kind===p.kind).slice(0,5);
+    const related=projects.filter(q=>q.catalogVisible!==false&&q.id!==p.id&&q.kind===p.kind).slice(0,5);
     const seasons=availableSeasons(p);
     if(seasons.length&&!seasons.includes(selectedSeason))selectedSeason=seasons[0];
     const listed=seasons.length?episodesInSeason(p,selectedSeason):[];
@@ -193,7 +200,7 @@
   }
   function openEpisode(id,season,number){
     const p=projects.find(q=>q.id===id);
-    if(!p||!episodeFor(p,season,number))return;
+    if(!p||p.catalogVisible===false||!episodeFor(p,season,number))return;
     playerEpisode={projectId:id,season:Number(season),number:Number(number)};
     selectedSeason=Number(season);currentProjectId=id;
     const route='#assistir/'+encodeURIComponent(id)+'/'+Number(season)+'/'+Number(number);
@@ -310,7 +317,7 @@
   function endScreenMarkup(p,e,state){
     const currentKey=seasonNumber(e)+':'+e.number;
     const nextEpisodes=p.episodes.filter(item=>isPlayable(item)&&seasonNumber(item)+':'+item.number!==currentKey).slice(0,2);
-    const related=projects.filter(item=>item.id!==p.id&&item.kind===p.kind).slice(0,4);
+    const related=projects.filter(item=>item.catalogVisible!==false&&item.id!==p.id&&item.kind===p.kind).slice(0,4);
     const epCards=nextEpisodes.map(item=>'<button type="button" class="dw-ending-card" data-episode="'+safe(p.id)+':'+seasonNumber(item)+':'+safe(item.number)+'">'
       +'<span class="dw-ending-image" style="background-image:'+safe(getImage(p))+'"><span class="dw-ending-play">▶</span></span>'
       +'<span class="dw-ending-details"><strong>EP '+safe(item.number)+' · '+safe(item.name)+'</strong><small>Assistir episódio</small></span></button>').join('');
@@ -355,7 +362,7 @@
     }
   }
   function openProject(id){
-    if(!projects.some(p=>p.id===id))return;
+    if(!projects.some(p=>p.id===id&&p.catalogVisible!==false))return;
     returnView=currentProjectId?returnView:view;
     playerEpisode=null;currentProjectId=id;selectedSeason=1;detailsTab='episodios';
     if(location.hash!=='#projeto/'+encodeURIComponent(id))history.pushState({},'','#projeto/'+encodeURIComponent(id));
@@ -368,14 +375,14 @@
     catch{hash='inicio'}
     const parts=hash.split('/');
     if(parts[0]==='assistir'&&parts.length===4){
-      const p=projects.find(q=>q.id===parts[1]);
+      const p=projects.find(q=>q.id===parts[1]&&q.catalogVisible!==false);
       const season=Number(parts[2]),episode=Number(parts[3]);
       if(p&&episodeFor(p,season,episode)){
         playerEpisode={projectId:p.id,season,number:episode};
         currentProjectId=p.id;selectedSeason=season;detailsTab='episodios';
       }else{playerEpisode=null;currentProjectId=null;view='inicio'}
     }else if(parts[0]==='projeto'&&parts.length===2){
-      const p=projects.find(q=>q.id===parts[1]);
+      const p=projects.find(q=>q.id===parts[1]&&q.catalogVisible!==false);
       playerEpisode=null;currentProjectId=p?p.id:null;
       selectedSeason=p&&availableSeasons(p).length?availableSeasons(p)[0]:1;
       detailsTab='episodios';
@@ -424,7 +431,7 @@
     if(n.dataset.favorite){toggleFavorite(n.dataset.favorite);return}
     if(n.dataset.view){navigate(n.dataset.view);return}
     if(n.dataset.filter){filter=n.dataset.filter;render();return}
-    if(n.dataset.hero){heroIndex=(heroIndex+(n.dataset.hero==='next'?1:heroProjects.length-1))%heroProjects.length;render();return}
+    if(n.dataset.hero){const count=heroProjects.filter(p=>p.catalogVisible!==false).length||projects.filter(p=>p.catalogVisible!==false).length||1;heroIndex=(heroIndex+(n.dataset.hero==='next'?1:count-1))%count;render();return}
     if(n.dataset.heroTo){heroIndex=Number(n.dataset.heroTo);render();return}
     if(n.dataset.tab){detailsTab=n.dataset.tab;renderProjectDetail();return}
     if(n.dataset.scrollEpisodes){detailsTab='episodios';renderProjectDetail();document.querySelector('.detail-tabs')?.scrollIntoView({behavior:'smooth',block:'start'});return}
@@ -493,11 +500,31 @@
         projects.find(p=>p.id===playerEpisode.projectId),playerEpisode.season,playerEpisode.number):null;
       const beforePlayable=isPlayable(activeBefore);
       const beforeDbId=activeBefore?.dbId||null;
+      const publishedBySlug=new Map((metadata||[]).map(entry=>[entry.slug,entry]));
+      for(const details of metadata||[]){
+        if(projects.some(p=>p.id===details.slug))continue;
+        const newbie={
+          id:details.slug,title:details.title||details.slug,
+          kind:details.kind==='anime'?'Animes':'Desenhos',
+          genre:Array.isArray(details.genres)?details.genres.join(' • '):'',
+          status:'Publicado',tag:'DUBWORKS PLAY',tagClass:'done',
+          color:'#5033a8',image:details.cover_url||details.banner_url||'',
+          description:details.synopsis||'',episodes:[],highlight:false,catalogVisible:true
+        };
+        projects.push(newbie);
+        originalEpisodes.set(newbie.id,[]);
+      }
       for(const p of projects){
-        const details=metadata?.find(x=>x.slug===p.id);
+        const details=publishedBySlug.get(p.id);
+        p.catalogVisible=!!details;
         if(details){
           p.ageRating=details.age_rating||null;
           p.releaseYear=details.release_year||null;
+          p.title=details.title||p.title;
+          p.description=details.synopsis||p.description;
+          p.kind=details.kind==='anime'?'Animes':'Desenhos';
+          p.genre=Array.isArray(details.genres)&&details.genres.length?details.genres.join(' • '):p.genre;
+          p.image=details.cover_url||details.banner_url||p.image;
         }
         const merged=new Map((originalEpisodes.get(p.id)||[]).map(e=>[seasonNumber(e)+':'+e.number,{...e}]));
         for(const rec of rows||[]){
