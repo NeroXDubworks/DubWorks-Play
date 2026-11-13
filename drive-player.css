@@ -1,0 +1,139 @@
+/* DubWorks Play · Google Drive embedded player + editorial screen */
+.dw-age-rating{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:25px;
+  background:#f5f5f8;color:#17172f;border:1px solid #ffffff9c;border-radius:5px;padding:0 6px;
+  font:900 12px 'Nunito',sans-serif}
+.detail-hero{min-height:640px}
+.detail-hero-body{width:min(580px,41vw);bottom:clamp(110px,10vw,155px)}
+.detail-hero h1{font-size:clamp(48px,4.8vw,82px)}
+.dw-project-player{
+  position:absolute;z-index:3;top:clamp(85px,8vw,125px);right:clamp(22px,3.6vw,70px);
+  width:min(48%,790px);overflow:hidden;border-radius:18px;
+  border:2px solid rgba(170,127,249,.77);background:#110d2a;
+  box-shadow:0 20px 70px #02020ec9,0 0 35px #5a24a02b
+}
+.dw-project-player-title{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 17px;color:#d5c8f9;background:#191335ed;font:900 11px 'Nunito',sans-serif
+}
+.dw-project-player-title span:first-child{letter-spacing:1.5px;color:#9ee6ff}
+.dw-project-drive-frame,.dw-drive-frame{display:block;width:100%;aspect-ratio:16/9;border:0;background:#04040e}
+.dw-project-player-empty{width:100%;aspect-ratio:16/9;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background-color:#1a1748;background-position:center;background-size:cover;position:relative;
+  isolation:isolate;gap:8px;padding:28px;text-align:center}
+.dw-project-player-empty:before{content:'';position:absolute;z-index:-1;inset:0;
+  background:linear-gradient(90deg,#100c2ee8,#121038ce)}
+.dw-project-player-empty>span{display:grid;place-items:center;width:75px;height:75px;
+  background:#563bb6cf;border:1px solid #a98aff;border-radius:100px;
+  font-size:40px;color:#cceeff;box-shadow:0 10px 27px #06051ab4}
+.dw-project-player-empty strong{font:600 clamp(18px,2vw,28px) 'Fredoka',sans-serif;color:#fff}
+.dw-project-player-empty small{color:#c4c2df;font:800 12px 'Nunito',sans-serif}
+.dw-project-player-open{display:block;width:100%;border:0;border-top:1px solid #61529b;
+  background:#211b4b;padding:12px 15px;color:#e2eaff;font:900 13px 'Nunito',sans-serif;cursor:pointer}
+.dw-project-player-open:hover{background:#49379f}
+.watch-stage iframe.dw-drive-frame{position:absolute;inset:0;height:100%;z-index:3}
+.dw-drive-warning{color:#c6c5e5;font:700 13px/1.6 'Nunito',sans-serif;max-width:680px}
+.watch-toolbar>a.watch-button{display:inline-flex;align-items:center;text-decoration:none}
+.dw-admin-open{overflow:hidden}
+.dw-admin-overlay{
+  position:fixed;z-index:500;inset:0;display:flex;justify-content:center;align-items:center;
+  background:#010212d9;backdrop-filter:blur(12px);padding:16px;overflow-y:auto
+}
+.dw-admin-dialog{
+  width:min(1120px,100%);max-height:min(94vh,1020px);overflow-y:auto;
+  display:flex;flex-direction:column;border-radius:23px;border:1px solid #9e62e6;
+  background:radial-gradient(circle at 95% 2%,#442276aa,transparent 35%),#100e2a;
+  box-shadow:0 45px 130px #000e,0 0 60px #5b30ab4f;color:#f9f5ff
+}
+.dw-admin-heading{
+  display:flex;justify-content:space-between;gap:18px;
+  padding:26px clamp(19px,3vw,39px) 24px;border-bottom:1px solid #66548b8a
+}
+.dw-admin-heading h2{font:600 clamp(27px,3vw,40px) 'Fredoka',sans-serif;margin:5px 0 8px}
+.dw-admin-heading p{color:#c3c0e3;font:700 13px/1.5 'Nunito',sans-serif;margin:0}
+.dw-admin-kicker{font:900 10px 'Nunito',sans-serif;letter-spacing:2px;color:#85dfff}
+.dw-admin-dismiss{
+  border:1px solid #7b64bc;border-radius:11px;width:40px;height:40px;flex:none;
+  background:#29204b;color:#fff;font-size:19px;cursor:pointer}
+.dw-admin-dismiss:hover{background:#5c3fb5}
+.dw-admin-body{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:440px}
+.dw-admin-steps{display:flex;flex-direction:column;gap:12px;padding:28px 18px;border-right:1px solid #53457d84;background:#171137}
+.dw-admin-step{display:grid;grid-template-columns:31px 1fr;gap:3px 10px;padding:14px 11px;
+  border:1px solid transparent;border-radius:12px}
+.dw-admin-step span{grid-row:1/3;display:grid;place-items:center;width:28px;height:28px;border-radius:9px;
+  background:#3e327f;color:#badfff;font:900 10px 'Nunito',sans-serif}
+.dw-admin-step strong{font:900 12px 'Nunito',sans-serif;color:#ddd3fb}
+.dw-admin-step small{font:700 10px/1.5 'Nunito',sans-serif;color:#a8a2cb}
+.dw-admin-step.is-current{border-color:#6552a8;background:#3b236f}
+.dw-admin-security{margin-top:auto;border:1px solid #625197;border-radius:12px;
+  padding:15px;color:#b8b0db;font:700 11px/1.55 'Nunito',sans-serif}
+.dw-admin-form{padding:27px clamp(20px,3vw,35px) 25px;display:flex;flex-direction:column;gap:17px}
+.dw-admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px 15px}
+.dw-admin-field{display:flex;flex-direction:column;gap:7px;color:#dcd6ed;font:900 12px 'Nunito',sans-serif}
+.dw-field-full{grid-column:1/-1}
+.dw-admin-field input,.dw-admin-field select,.dw-admin-field textarea{
+  box-sizing:border-box;width:100%;min-width:0;border-radius:9px;border:1px solid #716398;
+  background:#262046;color:#fff;padding:11px 13px;min-height:43px;
+  font:700 13px 'Nunito',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s
+}
+.dw-admin-field input:focus,.dw-admin-field select:focus,.dw-admin-field textarea:focus{border-color:#93e4ff;box-shadow:0 0 0 3px #7adfff26}
+.dw-admin-field input::placeholder,.dw-admin-field textarea::placeholder{color:#9b95be}
+.dw-admin-field textarea{resize:vertical}
+.dw-admin-field select option{background:#241d4b}
+.dw-admin-field small{font:700 11px/1.5 'Nunito',sans-serif;color:#a8a5cc}
+.dw-link-status{padding:11px 13px;border:1px solid #5b5383;background:#211d43;
+  border-radius:9px;color:#b9bfdd;font:800 11px/1.5 'Nunito',sans-serif}
+.dw-link-status.dw-valid{color:#8ee5d2;border-color:#4f9a91}
+.dw-link-status.dw-invalid{color:#ffb8b8;border-color:#9e5568}
+.dw-rights-check{display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+  color:#f1eafa;font:800 12px/1.6 'Nunito',sans-serif}
+.dw-rights-check input{width:17px;height:17px;flex:none;accent-color:#a34bee;margin-top:2px}
+.dw-admin-note{font:700 11px/1.6 'Nunito',sans-serif;color:#aaa8c8;margin:0}
+.dw-admin-notice{padding:12px 14px;border-radius:10px;border:1px solid #7770ad;background:#2b2556;
+  color:#f1edff;font:800 12px/1.5 'Nunito',sans-serif}
+.dw-admin-notice[data-type="success"]{border-color:#559e8e;background:#173a40;color:#a9f0dc}
+.dw-admin-notice[data-type="error"]{border-color:#b76279;background:#502139;color:#ffd4dc}
+.dw-admin-buttons{display:flex;gap:12px;justify-content:flex-end;border-top:1px solid #514675;padding-top:20px}
+.dw-admin-buttons button{border-radius:10px;padding:12px 19px;font:900 12px 'Nunito',sans-serif;min-height:44px;cursor:pointer}
+.dw-admin-buttons button:disabled{opacity:.6;cursor:wait}
+.dw-admin-secondary{background:#322754;color:#fff;border:1px solid #7563a4}
+.dw-admin-secondary:hover:not(:disabled){background:#4f3a84}
+.dw-admin-primary{background:linear-gradient(110deg,#a146e8,#7d31c6);border:1px solid #c56aff;
+  color:#fff;box-shadow:0 0 17px #a447e75c}
+.dw-admin-primary:hover:not(:disabled){filter:brightness(1.16)}
+@media(max-width:1200px){
+ .detail-hero-body{width:43vw}
+ .dw-project-player{top:110px;width:47%}
+}
+@media(max-width:850px){
+ .detail-hero{min-height:890px;height:auto!important;padding-bottom:32px}
+ .detail-hero-body{position:relative!important;left:auto!important;right:auto!important;
+   bottom:auto!important;padding:45px 22px 0;width:auto!important;max-width:680px}
+ .detail-art:before{background:linear-gradient(0deg,#090b24 0%,#0b0c33ce 60%,#0b0d2d7b 100%)}
+ .dw-project-player{position:relative;top:auto;right:auto;width:calc(100% - 44px);
+   margin:20px 22px 0;max-width:none;border-radius:13px}
+ .detail-hero h1{font-size:clamp(40px,7vw,68px)}
+ .dw-admin-body{grid-template-columns:1fr}
+ .dw-admin-steps{display:none}
+ .dw-admin-form{padding:22px}
+}
+@media(max-width:760px){
+ .detail-hero{min-height:780px!important;height:auto!important;padding-bottom:37px}
+ .detail-hero-body{padding:45px 19px 0}
+ .dw-project-player{width:calc(100% - 32px);margin:20px 16px 0}
+ .dw-project-player-title{font-size:10px;padding:9px 12px}
+ .dw-project-player-empty>span{width:47px;height:47px;font-size:26px}
+ .dw-project-player-empty strong{font-size:18px}
+ .dw-project-player-empty small{font-size:10px}
+ .dw-admin-overlay{padding:7px;align-items:flex-start}
+ .dw-admin-dialog{max-height:calc(100svh - 14px);border-radius:15px}
+ .dw-admin-heading{padding:18px}
+ .dw-admin-heading h2{font-size:29px}
+ .dw-admin-form{padding:18px 15px}
+ .dw-admin-grid{gap:12px}
+ .dw-admin-grid .dw-admin-field{grid-column:1/-1}
+ .dw-admin-buttons button{padding:10px 14px;flex:1}
+ .dw-admin-buttons{gap:8px}
+ .dw-admin-kicker{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){.dw-admin-field input,.dw-admin-field textarea,.dw-admin-field select{transition:none}}
