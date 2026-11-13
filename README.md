@@ -1,67 +1,70 @@
 # DubWorks Play 💙
 
-Protótipo navegável de um **catálogo de fandublagens**, inspirado na navegação de plataformas de streaming, mas com identidade própria da DubWorks.
+Catálogo independente da comunidade DubWorks, com identidade visual própria, login Google opcional, áreas de projetos e reprodução de episódios autorizados via Google Drive.
 
-## Como executar
+**Site:** https://dubworks-play.vercel.app/
 
-É um site estático, sem instalação de dependências:
+## Estrutura do sistema
 
-1. Abra `index.html` no navegador; ou
-2. Execute `python -m http.server 8000` dentro desta pasta e acesse `http://localhost:8000`.
+- **DubWorks Play:** site estático publicado pela Vercel, a partir deste repositório.
+- **Supabase DubWorks Play:** autenticação Google, permissões, catálogo editorial, temporadas, episódios, favoritos e outros dados dos espectadores.
+- **Google Drive:** armazena os arquivos de vídeo; o site utiliza o player incorporado do Google Drive.
+- **DubWorks Manager:** permanece separado. O Play não altera seu banco de dados.
 
-Pode ser hospedado na Vercel (framework **Other**, build command vazio, output directory `.`) ou no GitHub Pages.
+## Publicar episódio usando o Google Drive
 
-## O que já funciona
+1. Finalize e exporte o episódio em um formato aceito pelo Google Drive, como MP4.
+2. Faça upload do vídeo **no seu Google Drive**.
+3. Com as autorizações dos titulares confirmadas, abra o compartilhamento do arquivo e escolha **Qualquer pessoa com o link → Leitor** para permitir reprodução por visitantes sem login.
+4. Copie o link do próprio **arquivo**, normalmente `https://drive.google.com/file/d/ID_DO_VIDEO/view?usp=sharing`. Não use um link de pasta.
+5. Acesse o DubWorks Play e faça login com uma conta da **Diretoria** ou **Administração**.
+6. Clique no perfil, no canto superior direito, e escolha **✦ Publicar episódio do Drive**.
+7. Selecione a série, informe **temporada**, **episódio**, **título**, descrição e miniatura (opcionais) e cole o link.
+8. Se ainda não estiver pronto para o público, clique em **Salvar rascunho**. Para publicar, marque a declaração de autorização e clique em **Salvar e publicar**.
 
-- Página inicial com banner alternável e categorias.
-- Catálogo responsivo para computador e celular.
-- Busca de projetos, filtros por estágio, e listas de animes e desenhos.
-- Favoritos salvos no navegador (`localStorage`).
-- Página de cada projeto, com abas de episódios, sugestões, extras e detalhes.
-- **Seletor de temporadas:** episódios podem ter um campo `season` e são agrupados na sua temporada.
-- **Player HTML5:** tela dedicada, controles nativos (play, pausa, áudio, busca e tela cheia), mudança de velocidade, mini player quando disponível, anterior/próximo episódio.
-- **Continuar assistindo:** guarda o ponto do vídeo no navegador (`localStorage`), sem login.
-- Para episódios ainda não publicados, mostra estado “Indisponível”, sem simular um vídeo real.
-- Aparência dark azul no estilo escolhido para o DubWorks Play.
+Se esse episódio já estiver cadastrado, o painel carrega seus dados e salva as alterações no mesmo registro. O formulário não faz upload direto: **você envia o vídeo pelo próprio Drive e cola o link no site**.
 
-## Dados
+### Como funciona a reprodução
 
-O protótipo usa uma **lista estática** de alguns projetos reais do DubWorks Manager (consultados em 11/11/2026). Não acessa ou altera o banco de produção. O status de edição/produção **não significa que o episódio esteja disponível para assistir**. Os cartões usam links de capas existentes no cadastro; imagens hospedadas em sites externos podem deixar de funcionar.
+Um vídeo publicado aparece no catálogo e pode ser aberto sem login. O link do Drive é convertido para um endereço seguro no formato `https://drive.google.com/file/d/ID_DO_VIDEO/preview`, apresentado por `iframe`. Os links antigos com `resourcekey` também são reconhecidos.
 
-### Como vincular um episódio autorizado ao player
+O player da página do projeto e a tela completa do episódio utilizam os **controles do Google Drive**, não um elemento HTML5 `video`. Portanto, o DubWorks Play **não controla a velocidade, a posição do vídeo nem consegue sincronizar automaticamente o tempo assistido** de arquivos do Drive. A funcionalidade de continuar assistindo na posição exata continua disponível apenas para vídeos hospedados compatíveis com HTML5.
 
-Na lista `projects` em `app.js`, um episódio pode incluir os seguintes campos:
+**O sistema não verifica automaticamente se o Google Drive liberou a visualização.** Após publicar, teste o link em uma janela anônima, como visitante, antes de divulgar. Arquivos restritos, com bloqueios ou que excedam limites de reprodução do Drive podem não tocar.
 
-```js
-{
-  season: 1,                    // número da temporada no catálogo
-  number: 1,                    // episódio dentro da temporada
-  name: 'Nome do episódio',
-  status: 'Publicado',
-  published: true,              // é necessário marcar explicitamente
-  videoUrl: 'https://exemplo.com/video-autorizado.mp4',
-  // opcionais:
-  posterUrl: 'https://exemplo.com/capa-autorizada.jpg',
-  captionsUrl: 'https://exemplo.com/legendas-ptbr.vtt'
-}
+**Download offline não está implementado.** O Google Drive pode mostrar opções próprias de download conforme o compartilhamento, e o DubWorks Play não tem controle completo sobre esses botões.
+
+### Segurança
+
+- Entrar com Google é **opcional** para assistir.
+- As permissões para publicar são verificadas no banco Supabase com **Row Level Security (RLS)**: Diretoria e Administração podem editar; espectadores não podem publicar, mesmo manipulando o HTML.
+- O site usa apenas uma chave pública `sb_publishable_` no navegador; nenhum segredo Google, token de Drive ou chave administrativa deve ser inserido no código público.
+- O vídeo só fica liberado no registro do catálogo quando há link de mídia e confirmação explícita dos direitos de publicação.
+- O login Google dos espectadores **não concede acesso ao Drive pessoal de ninguém**.
+
+## Recursos do catálogo
+
+- Página inicial com destaques e categorias, busca, cards animados e efeitos para toque.
+- Páginas individuais de projetos com player incorporado, temporadas, episódios, sugestões, extras e detalhes.
+- Reprodução por Google Drive quando o episódio estiver publicado, e tela de indisponibilidade para episódios ainda não liberados.
+- Player HTML5 alternativo para vídeos hospedados em formato compatível.
+- Favoritos no navegador para visitantes e sincronização de Minha Lista para espectadores logados.
+- Diferenciação entre espectadores, moderadores, administradores e diretoria.
+
+A estrutura visual inicial ainda contém dados de alguns projetos da comunidade. Só os episódios expressamente publicados no banco próprio do Play são liberados para reprodução. **A condição “episódio finalizado” no Manager não publica um vídeo automaticamente.**
+
+## Desenvolvimento
+
+Site estático sem etapa de compilação. Para execução local:
+
+```bash
+python -m http.server 8000
 ```
 
-O player só habilita o vídeo quando `published: true` **e** um endereço HTTPS de mídia são informados. A URL precisa apontar para um arquivo/formato reproduzível pelo navegador, por exemplo MP4 compatível. Plataformas que exigem autenticação, URLs do Google Drive ou formatos HLS podem precisar de um provedor/player específico. O servidor do vídeo precisa permitir o acesso no navegador.
-
-Os episódios antigos sem `season` são agrupados **provisoriamente** em “Temporada 1”; isso não confirma a numeração oficial das temporadas. Projetos sem episódios não exibem temporadas fictícias. A seleção de temporadas ainda é estática, sem painel de edição.
-
-**Não existe download offline implementado nesta versão.** Ativá-lo exigirá autorização específica, infraestrutura de arquivos e política de acesso.
-
-### Próximas fases
-
-- Painel editorial para cadastrar filmes, séries, temporadas e episódios autorizados.
-- Integração com um serviço apropriado de hospedagem e entrega de vídeo, após verificação dos direitos de distribuição.
-- Sincronização somente leitura e restrita com os projetos relevantes do DubWorks Manager, usando uma API segura.
-- Autenticação e controle de permissões.
-- Capas e artes oficiais produzidas/licenciadas para o catálogo.
+Abra `http://localhost:8000`. Na Vercel: framework **Other**, output directory `.`, sem build command. O Google OAuth requer que a URL de retorno esteja cadastrada no Supabase.
 
 ## Direitos de uso
 
-A participação em uma fandublagem não equivale a autorização de distribuição da obra audiovisual original. Não publique episódios completos nem incorpore vídeos, trilhas ou imagens de terceiros sem verificar os direitos pertinentes.
+Fazer uma fandublagem **não concede automaticamente** autorização para distribuir o episódio audiovisual original. É necessário verificar as licenças e autorizações pertinentes antes de compartilhar um episódio completo ou disponibilizar downloads.
 
-**Este repositório é totalmente separado do `Dubworks-Manager`.**
+Este repositório é totalmente separado do **DubWorks Manager**.
