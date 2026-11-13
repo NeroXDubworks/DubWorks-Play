@@ -79,8 +79,8 @@
         +'<span class="dw-role" id="dw-role"></span></div>'
         +'<div class="dw-account-actions">'
         +'<button type="button" data-dw-go-list>♡ Minha lista</button>'
-        +(['admin','director'].includes(role)?'<button type="button" class="dw-admin-menu-btn" data-dw-admin>✦ Publicar episódio do Drive</button>':'')
-        +(role==='moderator'?'<div class="dw-role-explainer">Moderação de comentários em desenvolvimento.</div>':'')
+        +(['admin','director','moderator'].includes(role)?'<button type="button" class="dw-admin-menu-btn" data-dw-backoffice>◈ Painel administrativo</button>':'')
+        +(['admin','director'].includes(role)?'<button type="button" data-dw-admin>＋ Publicar episódio pelo Drive</button>':'')
         +'<button type="button" data-dw-signout>Sair da conta</button>'
         +'</div>';
       fillText('#dw-account-name',name||'Conta DubWorks');
@@ -248,6 +248,11 @@
     if(button.hasAttribute('data-dw-go-list')){
       setMenu(false);
       document.querySelector('[data-view="favoritos"]')?.click();
+      return;
+    }
+    if(button.hasAttribute('data-dw-backoffice')){
+      setMenu(false);
+      window.DWAdmin?.open?.();
       return;
     }
     if(button.hasAttribute('data-dw-admin')){
