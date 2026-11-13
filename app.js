@@ -108,6 +108,10 @@
     }
     render();
   }
+  const canEdit=()=>['admin','director'].includes(window.DWAuth?.getRole?.());
+  const editEpisodeButton=(id,season,number,label='✎ Editar episódio')=>canEdit()
+    ?'<button type="button" class="dw-edit-action" data-edit-episode="'+safe(id)+':'+Number(season)+':'+Number(number)+'">'+label+'</button>'
+    :'';
   function renderProjectDetail(){
     const p=projects.find(q=>q.id===currentProjectId);
     if(!p){currentProjectId=null;renderHome();return}
@@ -131,7 +135,8 @@
           +'<div class="episode-state '+(ready?'is-ready':'')+'">'+(ready?'● Disponível para assistir':'○ Aguardando publicação')+'</div>'
           +(ready&&previous>10?'<p class="episode-availability">Continuar de '+formatClock(previous)+'</p>':'')
           +'<div><button type="button" class="episode-action '+(ready?'is-ready':'')+'" data-episode="'+safe(p.id)+':'+seasonNumber(e)+':'+safe(e.number)+'">'
-          +(ready?'▶ '+(previous>10?'Continuar assistindo':'Assistir episódio'):'Ver tela do episódio')+'</button></div>'
+          +(ready?'▶ '+(previous>10?'Continuar assistindo':'Assistir episódio'):'Ver tela do episódio')+'</button>'
+          +editEpisodeButton(p.id,seasonNumber(e),e.number)+'</div>'
           +'</div></article>';
       }).join('')
       :'<div class="detail-empty"><strong>Tem novidade chegando!</strong><p>Os episódios deste projeto serão exibidos aqui quando estiverem cadastrados e liberados para publicação.</p></div>';
@@ -175,12 +180,14 @@
       +'<div class="detail-hero-body"><span class="detail-eyebrow">DUBWORKS PLAY • FANDUBLAGEM</span>'
       +'<h1>'+safe(p.title)+'</h1>'
       +'<div class="detail-meta"><span class="detail-state">'+safe(p.status)+'</span>'
-      +(p.ageRating?'<span class="dw-age-rating" title="Classificação indicativa">'+safe(p.ageRating)+'</span>':'')
+      +'<span class="dw-age-rating '+(p.ageRating?'':'dw-unrated')+'" title="Classificação indicativa">'+safe(p.ageRating||'Não classificado')+'</span>'
       +(p.releaseYear?'<span>'+safe(p.releaseYear)+'</span>':'')
       +'<span>'+safe(p.kind)+'</span><span>'+safe(p.genre)+'</span></div>'
       +'<p class="detail-description">'+safe(p.description)+'</p>'
       +'<div class="detail-actions">'+heroButton
-      +'<button class="btn btn-outline" data-favorite="'+safe(p.id)+'">'+favoriteLabel+'</button></div>'
+      +'<button class="btn btn-outline" data-favorite="'+safe(p.id)+'">'+favoriteLabel+'</button>'
+      +(canEdit()?'<button class="dw-edit-action dw-edit-series" data-edit-series="'+safe(p.id)+'">✎ Editar classificação e ano</button>':'')
+      +'</div>'
       +'</div>'+inlinePlayer+'</section>'
       +'<div class="detail-content"><div class="detail-tabs" role="tablist" aria-label="Explorar '+safe(p.title)+'">'
       +['episodios','sugestoes','extras','detalhes'].map(t=>{
@@ -239,13 +246,14 @@
           +'<span class="watch-unavailable-icon" aria-hidden="true">▷</span>'
           +'<h2>Episódio ainda não disponível</h2>'
           +'<p>O player está preparado, mas este episódio não tem um vídeo autorizado para reprodução no momento.</p></div>';
+    const recommendations=endScreenMarkup(p,e,state);
     main.innerHTML='<div class="watch-page"><div class="watch-inner">'
       +'<div class="watch-header"><button class="watch-back" data-player-back="true">← Voltar aos episódios</button>'
       +'<div class="watch-mini-brand"><span>✦</span> DUBWORKS PLAY</div></div>'
       +'<div class="watch-stage" id="dw-watch-stage">'+media
       +'<div id="dw-watch-error" class="watch-video-error" role="alert"><h2>Não foi possível carregar o vídeo</h2>'
       +'<p>Confira se o arquivo está disponível e se o formato é compatível com seu navegador.</p></div>'
-      +'</div>'
+      +recommendations+'</div>'
       +'<section class="watch-underplayer"><div class="watch-copy">'
       +'<p class="watch-series">'+safe(p.title)+'</p>'
       +'<h1 class="watch-episode-name">T'+state.season+' · EP '+state.number+' — '+safe(e.name)+'</h1>'
@@ -254,12 +262,13 @@
       +'<div class="watch-buttons">'
       +'<button class="watch-button" data-player-back="true">Voltar à série</button>'
       +(ready?'<button class="watch-button" data-fullscreen="true">⛶ Tela cheia</button>':'')
+      +editEpisodeButton(p.id,state.season,state.number)
       +(previous?'<button class="watch-button" data-episode="'+safe(p.id)+':'+state.season+':'+safe(previous.number)+'">← Anterior</button>':'')
       +(next?'<button class="watch-button watch-button-primary" data-episode="'+safe(p.id)+':'+state.season+':'+safe(next.number)+'">Próximo episódio →</button>':'')
       +'</div></section>'
       +'<div class="watch-toolbar">'
       +seasonMenu
-      +(isDrive?'<span class="dw-drive-warning">Reprodução pelo Google Drive. Os controles ficam dentro do vídeo; o Drive não sincroniza o tempo assistido com o DubWorks Play.</span>'
+      +(isDrive?'<button class="watch-button dw-show-suggestions" data-show-end="true">✓ Terminei • Ver sugestões</button><span class="dw-drive-warning">O Google Drive não informa quando o vídeo termina. Use “Terminei” para abrir as sugestões.</span>'
 
         :ready?'<label for="dw-speed-select">Velocidade <select id="dw-speed-select"><option value="0.75">0,75×</option><option value="1" selected>Normal (1×)</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>'
           +'<button class="watch-button" data-pip="true">▣ Mini player</button>'
@@ -269,9 +278,11 @@
       +'<section class="watch-next"><h2>Mais episódios desta temporada</h2><div class="watch-next-cards">'
       +currentEpisodes.map(item=>'<button class="watch-next-item" data-episode="'+safe(p.id)+':'+state.season+':'+safe(item.number)+'" aria-current="'+(item.number===e.number)+'"><strong>EP '+safe(item.number)+' — '+safe(item.name)+'</strong><span>'+safe(item.status)+(isPlayable(item)?' · Assistir':' · Indisponível')+'</span></button>').join('')
       +'</div></section>'
+      +'<section id="dw-episode-comments" class="dw-episode-comments" aria-label="Comentários do episódio"><h2>Comentários</h2><p>Carregando comentários...</p></section>'
       +'<p class="watch-rights">Reprodução restrita a arquivos com autorização de exibição. Download offline ainda não está habilitado.</p>'
       +'</div></div>';
     if(ready&&!isDrive)wirePlayer(state);
+    if(window.DWEngagement?.renderComments)window.DWEngagement.renderComments();
   }
   function wirePlayer(state){
     const video=document.getElementById('dw-episode-video');
@@ -296,12 +307,41 @@
     });
     video.addEventListener('ended',()=>{
       saveProgress(state.projectId,state.season,state.number,0);
-      showToast('Fim do episódio. Você pode escolher o próximo!');
+      showEndScreen();
     });
     video.addEventListener('error',()=>{
       document.getElementById('dw-watch-error')?.classList.add('visible');
     });
   }
+  function endScreenMarkup(p,e,state){
+    const currentKey=seasonNumber(e)+':'+e.number;
+    const nextEpisodes=p.episodes.filter(item=>isPlayable(item)&&seasonNumber(item)+':'+item.number!==currentKey).slice(0,2);
+    const related=projects.filter(item=>item.id!==p.id&&item.kind===p.kind).slice(0,4);
+    const epCards=nextEpisodes.map(item=>'<button type="button" class="dw-ending-card" data-episode="'+safe(p.id)+':'+seasonNumber(item)+':'+safe(item.number)+'">'
+      +'<span class="dw-ending-image" style="background-image:'+safe(getImage(p))+'"><span class="dw-ending-play">▶</span></span>'
+      +'<span class="dw-ending-details"><strong>EP '+safe(item.number)+' · '+safe(item.name)+'</strong><small>Assistir episódio</small></span></button>').join('');
+    const moreCards=related.map(item=>'<button type="button" class="dw-ending-card" data-open="'+safe(item.id)+'">'
+      +'<span class="dw-ending-image" style="background-image:'+safe(getImage(item))+'"><span class="dw-ending-play">↗</span></span>'
+      +'<span class="dw-ending-details"><strong>'+safe(item.title)+'</strong><small>Conhecer projeto</small></span></button>').join('');
+    return '<div id="dw-end-screen" class="dw-end-screen" role="dialog" aria-label="Sugestões para continuar assistindo" hidden>'
+      +'<div class="dw-end-shade"></div>'
+      +'<div class="dw-end-inner"><div class="dw-end-top"><span class="dw-end-brand">✦ DUBWORKS PLAY</span>'
+      +'<button class="dw-end-close" type="button" data-close-end="true">✕ Fechar</button></div>'
+      +'<p class="dw-end-eyebrow">A HISTÓRIA CONTINUA...</p>'
+      +'<h2>Que tal mais uma? <span>✦</span></h2>'
+      +'<p class="dw-end-lead">Escolha o próximo episódio ou descubra outro projeto da nossa comunidade.</p>'
+      +'<div class="dw-ending-grid">'+epCards+moreCards+'</div>'
+      +'<button type="button" class="dw-end-return" data-close-end="true">Voltar ao vídeo</button></div></div>';
+  }
+  function showEndScreen(){
+    const screen=document.getElementById('dw-end-screen');
+    if(!screen)return;
+    screen.hidden=false;
+    const video=document.getElementById('dw-episode-video');
+    if(video&&!video.paused)video.pause();
+    screen.querySelector('[data-close-end]')?.focus();
+  }
+  function hideEndScreen(){const screen=document.getElementById('dw-end-screen');if(screen)screen.hidden=true;}
   function openProject(id){
     if(!projects.some(p=>p.id===id))return;
     returnView=currentProjectId?returnView:view;
@@ -334,8 +374,21 @@
     render();window.scrollTo({top:0,behavior:'instant'});
   }
   document.addEventListener('click',e=>{
-    const n=e.target.closest('[data-close],[data-open],[data-back],[data-player-back],[data-episode],[data-fullscreen],[data-pip],[data-favorite],[data-view],[data-filter],[data-hero],[data-hero-to],[data-tab],[data-scroll-episodes],[data-watch]');
+    const n=e.target.closest('[data-close],[data-open],[data-back],[data-player-back],[data-episode],[data-fullscreen],[data-pip],[data-favorite],[data-view],[data-filter],[data-hero],[data-hero-to],[data-tab],[data-scroll-episodes],[data-watch],[data-edit-episode],[data-edit-series],[data-show-end],[data-close-end]');
     if(!n)return;
+    if(n.dataset.showEnd){showEndScreen();return}
+    if(n.dataset.closeEnd){hideEndScreen();return}
+    if(n.dataset.editEpisode){
+      if(!canEdit())return;
+      const [slug,season,number]=n.dataset.editEpisode.split(':');
+      window.DWDrive?.openAdmin?.({slug,season:Number(season),episode:Number(number)});
+      return;
+    }
+    if(n.dataset.editSeries){
+      if(!canEdit())return;
+      window.DWDrive?.openAdmin?.({slug:n.dataset.editSeries,focusSeries:true});
+      return;
+    }
     if(n.dataset.playerBack){closePlayer();return}
     if(n.dataset.close||n.dataset.back){closeProject();return}
     if(n.dataset.episode){
@@ -402,6 +455,14 @@
     document.querySelectorAll('.card-touched').forEach(el=>el.classList.remove('card-touched'));
   });
   window.DubWorksPlay={
+    getCurrentEpisode(){
+      if(!playerEpisode)return null;
+      const p=projects.find(x=>x.id===playerEpisode.projectId);
+      const e=episodeFor(p,playerEpisode.season,playerEpisode.number);
+      if(!p||!e)return null;
+      return {slug:p.id,title:e.name,dbId:e.dbId||null,season:playerEpisode.season,number:playerEpisode.number,
+        published:isPlayable(e)};
+    },
     applyPublishedEpisodes(rows,metadata){
       const known=new Map(projects.map(p=>[p.id,p]));
       for(const p of projects){
@@ -414,7 +475,7 @@
         for(const rec of rows||[]){
           if(rec.slug!==p.id||!rec.published)continue;
           const ep={
-            number:rec.number,season:rec.season,name:rec.name,
+            dbId:rec.dbId||null,number:rec.number,season:rec.season,name:rec.name,
             status:'Publicado',published:true,mediaProvider:rec.mediaProvider,
             driveFileId:rec.driveFileId||null,driveResourceKey:rec.driveResourceKey||null,
             videoUrl:rec.videoUrl||null,description:rec.description||p.description,
