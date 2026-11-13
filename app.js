@@ -257,7 +257,9 @@
       +'<section class="watch-underplayer"><div class="watch-copy">'
       +'<p class="watch-series">'+safe(p.title)+'</p>'
       +'<h1 class="watch-episode-name">T'+state.season+' · EP '+state.number+' — '+safe(e.name)+'</h1>'
-      +'<p class="watch-meta">'+safe(e.status)+' · '+(ready?'Pronto para assistir':'Aguardando publicação')+'</p>'
+      +'<p class="watch-meta">'+safe(e.status)+' · '+(ready?'Pronto para assistir':'Aguardando publicação')
+      +' · <span class="dw-watch-age">'+safe(p.ageRating?p.ageRating==='L'?'Livre':p.ageRating+' anos':'Não classificado')+'</span>'
+      +(p.releaseYear?' · '+safe(p.releaseYear):'')+'</p>'
       +'<p class="watch-summary">'+safe(e.description||p.description)+'</p></div>'
       +'<div class="watch-buttons">'
       +'<button class="watch-button" data-player-back="true">Voltar à série</button>'
