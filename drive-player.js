@@ -46,7 +46,7 @@
   async function loadPublicCatalogue(){
     const api=await getClient();
     const [seriesResp,seasonsResp,epsResp]=await Promise.all([
-      api.from('series').select('id,slug,age_rating,release_year').eq('status','published'),
+      api.from('series').select('id,slug,title,synopsis,kind,genres,age_rating,release_year,cover_url,banner_url,status').eq('status','published'),
       api.from('seasons').select('id,series_id,season_number').eq('status','published'),
       api.from('episodes').select('id,season_id,episode_number,title,synopsis,duration_seconds,thumbnail_url,media_provider,drive_file_id,drive_resource_key,video_url,status').eq('status','published')
     ]);
