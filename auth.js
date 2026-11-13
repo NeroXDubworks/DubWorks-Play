@@ -154,6 +154,7 @@
       role='unavailable';
     }
     renderAccount();
+    app()?.refreshEditorControls?.();
   }
   async function refreshAccount(){
     if(!api)return;
