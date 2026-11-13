@@ -36,6 +36,31 @@ O player da página do projeto e a tela completa do episódio utilizam os **cont
 
 **Download offline não está implementado.** O Google Drive pode mostrar opções próprias de download conforme o compartilhamento, e o DubWorks Play não tem controle completo sobre esses botões.
 
+### Comentários e moderação
+
+- Na **página do episódio**, abaixo da lista de próximos episódios, há o campo **Comentários**.
+- Visitantes podem ler somente comentários aprovados.
+- Para comentar, o espectador faz login com Google. Os comentários entram no banco com status `pending` e aguardam moderação antes de serem exibidos para todos.
+- A Diretoria, Administradores e Moderadores podem aprovar/rejeitar comentários pendentes diretamente naquela página.
+- Quem escreveu pode excluir o próprio comentário.
+- Por enquanto, comentários de outras pessoas aparecem com o identificador genérico **Comunidade DubWorks**, sem expor automaticamente o nome real do Google. O próprio espectador vê **Você** no seu comentário.
+
+### Editar episódio e classificação indicativa
+
+Após fazer login com uma conta da Diretoria ou Administração:
+
+1. Na página de uma série, clique em **Editar classificação e ano** para abrir o painel editorial na série correta. Escolha a classificação indicativa confirmada (Livre, 10, 12, 14, 16, 18 anos), preencha o ano se souber e clique em **Salvar classificação e ano**.
+2. Para alterar um episódio já cadastrado, clique em **Editar episódio** na lista de episódios ou na tela de reprodução. O formulário abre com série, temporada, número, título, descrição, duração e link do Drive existentes.
+3. Use **Salvar rascunho** se desejar retirar da exibição pública ou **Salvar e publicar** após conferir os direitos e o link.
+
+Não há classificação inventada: séries que não têm o campo preenchido mostram **Não classificado** até a equipe informar o dado correto.
+
+### Recomendações ao terminar
+
+Ao final de um vídeo hospedado diretamente com o player HTML5, aparece **automaticamente** uma tela escurecida de sugestões com cards de episódios disponíveis e projetos semelhantes. Os títulos têm animações de levantamento ao passar o mouse e ao tocar no celular.
+
+**Google Drive:** o iframe de pré-visualização não oferece um evento de término acessível ao site. Por isso, na reprodução via Drive, há o botão **Terminei • Ver sugestões**. Ao usá-lo, o iframe é interrompido, aparece a tela de recomendações e o espectador pode escolher outro episódio ou série. Voltar ao vídeo recarrega o player do Drive, sem restaurar automaticamente o segundo anterior.
+
 ### Segurança
 
 - Entrar com Google é **opcional** para assistir.
