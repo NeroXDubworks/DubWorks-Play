@@ -79,12 +79,13 @@
         +'<span class="dw-role" id="dw-role"></span></div>'
         +'<div class="dw-account-actions">'
         +'<button type="button" data-dw-go-list>♡ Minha lista</button>'
-        +(role!=='spectator'?'<div class="dw-role-explainer">Perfil da equipe reconhecido. Painel administrativo em desenvolvimento.</div>':'')
+        +(['moderator','admin','director'].includes(role)?'<div class="dw-role-explainer">Perfil da equipe reconhecido. Painel administrativo em desenvolvimento.</div>':'')
         +'<button type="button" data-dw-signout>Sair da conta</button>'
         +'</div>';
       fillText('#dw-account-name',name||'Conta DubWorks');
       fillText('#dw-account-email',profileEmail);
-      fillText('#dw-role',roleLabels[role]||'Espectador');
+      fillText('#dw-role',roleLabels[role]||(role==='loading'?'Verificando cargo...':'Não foi possível consultar o cargo'));
+      dropdown.querySelector('#dw-role')?.setAttribute('aria-live','polite');
     }else{
       trigger.classList.remove('dw-account-signed-in');
       trigger.innerHTML='<span aria-hidden="true">G</span><span class="dw-signin-label"> Entrar</span>';
@@ -130,6 +131,29 @@
     }
     app()?.applyFavorites?.([...cloud]);
   }
+  // Obtém o cargo diretamente do banco protegido, nunca de user_metadata.
+  // A interface é atualizada ANTES de buscar favoritos (que podem demorar).
+  async function refreshRole(){
+    if(!api||!user)return;
+    const accountId=user.id, expected=epoch;
+    try{
+      const {data:profile,error}=await api.from('profiles')
+        .select('display_name,role').eq('user_id',accountId).maybeSingle();
+      if(expected!==epoch||user?.id!==accountId)return;
+      if(error||!profile){
+        console.warn('DubWorks Play: falha ao consultar perfil',error);
+        role='unavailable';
+      }else{
+        role=Object.prototype.hasOwnProperty.call(roleLabels,profile.role)?profile.role:'unavailable';
+        if(profile.display_name)name=String(profile.display_name).slice(0,80);
+      }
+    }catch(error){
+      if(expected!==epoch||user?.id!==accountId)return;
+      console.warn('DubWorks Play: erro de perfil',error);
+      role='unavailable';
+    }
+    renderAccount();
+  }
   async function refreshAccount(){
     if(!api)return;
     const expected=++epoch;
@@ -141,19 +165,15 @@
       app()?.restoreGuestFavorites?.();
       renderAccount();return;
     }
+    const changedUser=user?.id!==account.id;
     user=account;profileEmail=account.email||'';
     name=String(account.user_metadata?.full_name||account.user_metadata?.name||'').slice(0,80);
-    role='spectator';
+    if(changedUser||role==='unavailable')role='loading';
     renderAccount();
-    const {data:profile,error:profileError}=await api.from('profiles')
-      .select('display_name,role').eq('user_id',account.id).maybeSingle();
+    await refreshRole();
     if(expected!==epoch)return;
-    if(!profileError&&profile&&roleLabels[profile.role])role=profile.role;
-    if(!profileError&&profile?.display_name)name=profile.display_name;
-    try {await loadFavorites(account.id);}
-    catch(error){console.error('Erro ao sincronizar favoritos',error);}
-    if(expected!==epoch)return;
-    renderAccount();
+    // Não bloqueia a visualização do cargo se o carregamento dos favoritos falhar.
+    loadFavorites(account.id).catch(error=>console.warn('Erro ao sincronizar favoritos',error));
   }
   async function login(){
     if(loginBusy)return;
@@ -213,6 +233,7 @@
     // Visitantes entram com um clique; após login, o mesmo botão abre a conta.
     if(!user){login();return}
     setMenu(!menuVisible);
+    if(menuVisible)refreshRole().catch(error=>console.warn('DubWorks Play: atualização de cargo',error));
   });
   dropdown.addEventListener('click',event=>{
     const button=event.target.closest('button');
