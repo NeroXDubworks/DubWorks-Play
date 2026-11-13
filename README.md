@@ -32,6 +32,8 @@ O player da página do projeto e a tela completa do episódio utilizam os **cont
 
 **O sistema não verifica automaticamente se o Google Drive liberou a visualização.** Após publicar, teste o link em uma janela anônima, como visitante, antes de divulgar. Arquivos restritos, com bloqueios ou que excedam limites de reprodução do Drive podem não tocar.
 
+**Atalhos externos:** a interface pública não mostra mais o botão “Abrir no Drive”. O canto do iframe que exibe o atalho externo é coberto visualmente, e o iframe usa `sandbox` sem permissão para popups ou navegação da página principal. A visualização em tela cheia utiliza o contêiner do DubWorks Play. Essas medidas melhoram a navegação, mas podem afetar recursos do player do Google e **não impedem que um visitante encontre o ID ou link público do vídeo pelas ferramentas do navegador**. Portanto, não são medidas de proteção de conteúdo, privacidade ou DRM. Teste o vídeo em uma janela anônima no computador e no celular após publicar.
+
 **Download offline não está implementado.** O Google Drive pode mostrar opções próprias de download conforme o compartilhamento, e o DubWorks Play não tem controle completo sobre esses botões.
 
 ### Segurança
