@@ -161,7 +161,7 @@
     let api;
     try{api=await staffCheck()}
     catch(error){window.alert(error.message);return}
-    const {data,error}=await api.from('series').select('id,title,slug,status,age_rating,release_year').eq('status','published').order('title');
+    const {data,error}=await api.from('series').select('id,title,slug,status,age_rating,release_year').order('title');
     if(error){window.alert('Não foi possível carregar as séries do Supabase.');return}
     seriesList=data||[];
     if(!seriesList.length){window.alert('Ainda não existem séries cadastradas.');return}
@@ -231,6 +231,7 @@
       if(error)throw error;
       selected.age_rating=data.age_rating;selected.release_year=data.release_year;
       await refreshPublic();
+      window.DWAdmin?.refresh?.();
       notify('Classificação indicativa e ano salvos com sucesso.','success');
     }catch(error){console.error('DubWorks Play: dados da série',error);notify('Não foi possível salvar os dados da série.','error')}
   }
@@ -281,6 +282,8 @@
       fields=getFields();
       if(publish&&!fields.drive)throw new Error('Cole o link do vídeo no Google Drive antes de publicar.');
       if(publish&&!fields.rights)throw new Error('Confirme as autorizações de publicação antes de liberar o episódio.');
+      const selected=seriesList.find(x=>x.id===fields.seriesId);
+      if(publish&&selected?.status!=='published')throw new Error('Publique primeiro a série no painel administrativo para liberar o episódio.');
       const api=await staffCheck();
       pending(true);
       input('dw-admin-publish').disabled=true;
@@ -313,6 +316,7 @@
       if(error)throw error;
       notify(publish?'Episódio publicado! Ele já pode aparecer no catálogo.':'Rascunho salvo. O vídeo ainda não está disponível ao público.','success');
       await refreshPublic();
+      window.DWAdmin?.refresh?.();
     }catch(error){
       console.error('DubWorks Play: publicação',error);
       notify(error?.message||'Não foi possível salvar o episódio.','error');
