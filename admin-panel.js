@@ -127,11 +127,16 @@
    return count||0;
  }
  async function loadOverview(ticket){
-   const metrics=[
+   const metrics=editorial()?[
      ['Séries cadastradas','series',[],'▣'],
      ['Séries públicas','series',[['status','published']],'✦'],
      ['Episódios publicados','episodes',[['status','published']],'▶'],
      ['Comentários pendentes','comments',[['status','pending']],'☏']
+   ]:[
+     ['Séries públicas','series',[['status','published']],'▣'],
+     ['Episódios públicos','episodes',[['status','published']],'▶'],
+     ['Comentários pendentes','comments',[['status','pending']],'☏'],
+     ['Comentários aprovados','comments',[['status','approved']],'✓']
    ];
    const promises=metrics.map(([,name,filters])=>queryCount(name,filters));
    if(onlyDirector())promises.push(queryCount('profiles'));
