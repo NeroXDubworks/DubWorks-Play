@@ -1,0 +1,50 @@
+/* Conta Google opcional — DubWorks Play */
+.header-actions{position:relative}
+.dw-account-trigger{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  min-width:49px;min-height:42px;padding:0 12px;
+  border:1px solid rgba(139,222,255,.74);border-radius:999px;
+  background:#28215f;color:white;font:900 13px 'Nunito',sans-serif;
+  cursor:pointer;white-space:nowrap;transition:transform .2s,border-color .2s,background .2s;
+}
+.dw-account-trigger:hover,.dw-account-trigger[aria-expanded="true"]{border-color:#9de5ff;background:#4935a4;transform:translateY(-1px)}
+.dw-account-trigger:focus-visible{outline:2px solid #8ee7ff;outline-offset:3px}
+.dw-account-trigger>span:first-child{display:grid;place-items:center;width:23px;height:23px;
+  border-radius:100%;background:#f5f8ff;color:#4385f5;font:bold 15px sans-serif}
+.dw-account-trigger.dw-account-signed-in{width:42px;height:42px;min-width:42px;padding:0;border-radius:50%;
+ background:#4c3cbe;box-shadow:0 0 0 3px #81d4ff2b;font-size:17px}
+.dw-account-menu{
+ position:absolute;z-index:120;top:calc(100% + 14px);right:0;width:min(355px,calc(100vw - 28px));
+ border:1px solid #6356b2;border-radius:18px;padding:5px;background:#171335;
+ box-shadow:0 25px 80px #030315dd;color:white;isolation:isolate;
+ animation:dwAccountAppear .18s ease-out
+}
+.dw-account-menu[hidden]{display:none!important}
+@keyframes dwAccountAppear{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:translateY(0)}}
+.dw-account-identity{display:flex;flex-direction:column;align-items:flex-start;gap:5px;
+  padding:19px 20px;border-radius:13px;background:linear-gradient(115deg,#282060,#16153e)}
+.dw-account-identity strong{font:600 21px 'Fredoka',sans-serif;color:#fff}
+.dw-account-identity small{font:700 12px 'Nunito',sans-serif;color:#b9b5d9;overflow-wrap:anywhere}
+.dw-account-identity p{font:700 13px/1.65 'Nunito',sans-serif;color:#cbc9e7;margin:5px 0 0}
+.dw-account-face{font-size:23px;color:#72ddff}
+.dw-role{display:inline-flex;align-items:center;margin-top:6px;
+  background:#43338e;border:1px solid #75d5ff;border-radius:90px;
+  padding:5px 11px;color:#d9f5ff;font:900 11px 'Nunito',sans-serif}
+.dw-account-actions{display:flex;flex-direction:column;padding:12px 9px;gap:7px}
+.dw-account-actions button{
+  display:flex;align-items:center;justify-content:center;min-height:43px;
+  width:100%;border-radius:9px;border:1px solid #6357a6;
+  background:#26204f;color:#f6f0ff;font:900 13px 'Nunito',sans-serif;
+  cursor:pointer;transition:background .18s,border-color .18s
+}
+.dw-account-actions button:hover{background:#483a9c;border-color:#85d8ff}
+.dw-account-actions button.dw-google-signin{background:#f7f8ff;color:#171339;border-color:#fff}
+.dw-account-actions button.dw-google-signin:hover{background:#d9efff}
+.dw-role-explainer{padding:9px 11px;color:#bcb8df;font:700 12px/1.55 'Nunito',sans-serif}
+@media(max-width:760px){
+  .dw-account-trigger{width:39px;height:39px;min-width:39px;min-height:39px;padding:0}
+  .dw-account-trigger>span:first-child{background:transparent;color:#85dfff}
+  .dw-signin-label{display:none}
+  .dw-account-menu{position:fixed;top:72px;right:11px;width:min(350px,calc(100vw - 22px))}
+}
+@media(prefers-reduced-motion:reduce){.dw-account-menu{animation:none}.dw-account-trigger{transition:none}}
