@@ -10,11 +10,46 @@
   const trigger=document.getElementById('dw-account-trigger');
   const dropdown=document.getElementById('dw-account-menu');
   if(!trigger||!dropdown)return;
-  const api=window.supabase?.createClient
-    ?window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
-      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
-    })
-    :null;
+  // O botão não depende do CDN para receber cliques. A biblioteca é carregada
+  // em paralelo e tem um segundo provedor como contingência.
+  let api=null, clientInit=null, authListenerAttached=false, loginBusy=false;
+  const sdkUrls=[
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0',
+    'https://unpkg.com/@supabase/supabase-js@2.119.0'
+  ];
+  function loadSdk(url){
+    return new Promise((resolve,reject)=>{
+      const script=document.createElement('script');
+      script.src=url;script.async=true;script.crossOrigin='anonymous';
+      script.onload=()=>window.supabase?.createClient?resolve():reject(new Error('SDK não inicializado'));
+      script.onerror=()=>reject(new Error('Falha ao carregar biblioteca de login'));
+      document.head.appendChild(script);
+    });
+  }
+  async function ensureClient(){
+    if(api)return api;
+    if(clientInit)return clientInit;
+    clientInit=(async()=>{
+      if(!window.supabase?.createClient){
+        for(const url of sdkUrls){
+          try{await loadSdk(url);break}
+          catch(error){console.warn('DubWorks Play: tentativa de carregar autenticação',error)}
+        }
+      }
+      if(!window.supabase?.createClient)throw new Error('SDK do Supabase indisponível');
+      api=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+        auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+      });
+      if(!authListenerAttached){
+        authListenerAttached=true;
+        api.auth.onAuthStateChange(()=>{
+          setTimeout(()=>refreshAccount().catch(console.error),0);
+        });
+      }
+      return api;
+    })().catch(error=>{clientInit=null;throw error});
+    return clientInit;
+  }
   let user=null,role='spectator',name='',profileEmail='';
   let catalogBySlug=new Map(),slugById=new Map(),menuVisible=false,epoch=0;
   const roleLabels={spectator:'Espectador',moderator:'Moderador',admin:'Administrador',director:'Diretoria'};
@@ -121,15 +156,31 @@
     renderAccount();
   }
   async function login(){
-    if(!api){remember(null,'Não foi possível carregar o login. Recarregue a página.');return;}
+    if(loginBusy)return;
+    loginBusy=true;
     setMenu(false);
-    // Usa apenas escopos de perfil básicos; não pede acesso ao Drive do visitante.
-    const redirectTo=window.location.origin+window.location.pathname;
-    const {error}=await api.auth.signInWithOAuth({
-      provider:'google',
-      options:{redirectTo,queryParams:{prompt:'select_account'}}
-    });
-    if(error)remember(null,'Não foi possível iniciar o login Google.');
+    trigger.disabled=true;
+    trigger.innerHTML='<span aria-hidden="true">G</span><span class="dw-signin-label"> Conectando...</span>';
+    try{
+      const client=await ensureClient();
+      // Escopos básicos de identificação; nenhum acesso ao Drive do espectador.
+      const redirectTo=window.location.origin+window.location.pathname;
+      const {error}=await client.auth.signInWithOAuth({
+        provider:'google',
+        options:{redirectTo,queryParams:{prompt:'select_account'}}
+      });
+      if(error)throw error;
+      // O SDK redireciona o navegador. Caso o navegador bloqueie, o botão
+      // permanece utilizável para uma nova tentativa.
+    }catch(error){
+      console.error('DubWorks Play: erro ao iniciar login',error);
+      remember(null,'Não foi possível abrir o Google. Verifique a conexão e tente novamente.');
+      setMenu(true);
+    }finally{
+      loginBusy=false;
+      trigger.disabled=false;
+      renderAccount();
+    }
   }
   async function logout(){
     if(!api)return;
@@ -157,7 +208,12 @@
     getUser:()=>user,
     getClient:()=>api
   };
-  trigger.addEventListener('click',()=>setMenu(!menuVisible));
+  trigger.addEventListener('click',()=>{
+    if(loginBusy)return;
+    // Visitantes entram com um clique; após login, o mesmo botão abre a conta.
+    if(!user){login();return}
+    setMenu(!menuVisible);
+  });
   dropdown.addEventListener('click',event=>{
     const button=event.target.closest('button');
     if(!button)return;
@@ -174,10 +230,9 @@
   });
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menuVisible)setMenu(false)});
   renderAccount();
-  if(!api){console.error('DubWorks Play: Biblioteca pública Supabase indisponível');return;}
-  api.auth.onAuthStateChange((event,session)=>{
-    // Não chama outros métodos de Auth dentro do callback; evita bloqueio.
-    setTimeout(()=>refreshAccount().catch(console.error),0);
-  });
-  refreshAccount().catch(console.error);
+  // Inicialização não bloqueia a interface. O login ainda funciona se
+  // o CDN primário estiver lento ou temporariamente indisponível.
+  ensureClient()
+    .then(()=>refreshAccount())
+    .catch(error=>console.warn('DubWorks Play: autenticação ainda não disponível',error));
 })();
