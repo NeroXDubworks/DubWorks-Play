@@ -72,12 +72,16 @@
     window.DubWorksPlay?.applyPublishedEpisodes?.(rows,seriesResp.data||[]);
     return rows.length;
   }
+  let queuedRefresh=false;
   async function refreshPublic(){
-    if(loading)return;
+    if(loading){queuedRefresh=true;return}
     loading=true;
     try{await loadPublicCatalogue()}
     catch(e){console.warn('DubWorks Play: catálogo publicado indisponível',e)}
-    finally{loading=false}
+    finally{
+      loading=false;
+      if(queuedRefresh){queuedRefresh=false;refreshPublic().catch(console.error)}
+    }
   }
 
   function editorHTML(){
@@ -150,7 +154,7 @@
     let api;
     try{api=await staffCheck()}
     catch(error){window.alert(error.message);return}
-    const {data,error}=await api.from('series').select('id,title,slug,status').order('title');
+    const {data,error}=await api.from('series').select('id,title,slug,status').eq('status','published').order('title');
     if(error){window.alert('Não foi possível carregar as séries do Supabase.');return}
     seriesList=data||[];
     if(!seriesList.length){window.alert('Ainda não existem séries cadastradas.');return}
@@ -202,7 +206,8 @@
       if(error)throw error;
       existing=data;
     }
-    if(!editorOpen)return;
+    if(!editorOpen||input('dw-series-id')?.value!==seriesId
+      ||Number(input('dw-season')?.value)!==n||Number(input('dw-episode')?.value)!==number)return;
     const fields=['dw-episode-title','dw-episode-description','dw-episode-duration','dw-episode-thumbnail','dw-drive-link'];
     fields.forEach(id=>input(id).value='');
     input('dw-rights-confirmed').checked=false;
