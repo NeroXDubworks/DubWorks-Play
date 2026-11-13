@@ -128,3 +128,13 @@
   .dw-end-screen{animation:none}
   .dw-ending-card,.dw-ending-details,.dw-ending-play{transition:none!important}
 }
+
+/* A tela final ocupa espaço suficiente para os cards no celular. */
+@media(max-width:760px){
+  .watch-stage.dw-is-ending{aspect-ratio:auto!important;min-height:430px!important}
+  .watch-stage.dw-is-ending .dw-end-screen{min-height:430px}
+}
+@media(max-width:480px){
+  .watch-stage.dw-is-ending{min-height:390px!important}
+  .watch-stage.dw-is-ending .dw-end-screen{min-height:390px}
+}
