@@ -473,6 +473,17 @@
     document.querySelectorAll('.card-touched').forEach(el=>el.classList.remove('card-touched'));
   });
   window.DubWorksPlay={
+    refreshEditorControls(){
+      if(!currentProjectId)return;
+      if(!playerEpisode){renderProjectDetail();return}
+      const container=document.querySelector('.watch-buttons');
+      if(!container)return;
+      container.querySelectorAll('[data-edit-episode]').forEach(el=>el.remove());
+      const p=projects.find(q=>q.id===playerEpisode.projectId);
+      const e=episodeFor(p,playerEpisode.season,playerEpisode.number);
+      if(e&&canEdit())container.insertAdjacentHTML('beforeend',
+        editEpisodeButton(p.id,playerEpisode.season,playerEpisode.number));
+    },
     getCurrentEpisode(){
       if(!playerEpisode)return null;
       const p=projects.find(x=>x.id===playerEpisode.projectId);
