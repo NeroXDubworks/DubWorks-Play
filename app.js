@@ -161,7 +161,7 @@
     const inlinePlayer='<aside class="dw-project-player" aria-label="Prévia dos episódios de '+safe(p.title)+'">'
       +'<div class="dw-project-player-title"><span>▶ DUBWORKS PLAY</span><span>'+(firstReady?'T'+seasonNumber(firstReady)+' · EP '+safe(firstReady.number):'AGUARDANDO ESTREIA')+'</span></div>'
       +(driveInline
-        ?'<div class="dw-drive-embed dw-drive-embed--project"><iframe class="dw-project-drive-frame" title="Assistir '+safe(firstReady.name)+' no Google Drive" src="'+safe(drivePreviewUrl(firstReady))+'" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><span class="dw-drive-corner-shield" aria-hidden="true"></span></div>'
+        ?'<div class="dw-drive-embed dw-drive-embed--project"><iframe class="dw-project-drive-frame" title="Assistir '+safe(firstReady.name)+' no Google Drive" src="'+safe(drivePreviewUrl(firstReady))+'" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe><span class="dw-drive-corner-shield" aria-hidden="true"></span></div>'
         :'<div class="dw-project-player-empty" style="background-image:'+safe(getImage(p))+'"><span aria-hidden="true">▷</span><strong>Seu próximo episódio mora aqui</strong><small>Assim que for publicado, o player aparecerá nesta tela.</small></div>')
       +(firstReady?'<button type="button" class="dw-project-player-open" data-episode="'+safe(p.id)+':'+seasonNumber(firstReady)+':'+safe(firstReady.number)+'">↗ Abrir página do episódio</button>':'')
       +'</aside>';
@@ -228,7 +228,7 @@
     const poster=validMediaUrl(e.posterUrl)?e.posterUrl:(validMediaUrl(p.image)?p.image:'');
     const isDrive=ready&&e.mediaProvider==='google_drive';
     const media=isDrive
-      ?'<div class="dw-drive-embed dw-drive-embed--watch"><iframe id="dw-drive-frame" class="dw-drive-frame" title="Reproduzir '+safe(e.name)+' pelo Google Drive" src="'+safe(drivePreviewUrl(e))+'" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><span class="dw-drive-corner-shield" aria-hidden="true"></span></div>'
+      ?'<div class="dw-drive-embed dw-drive-embed--watch"><iframe id="dw-drive-frame" class="dw-drive-frame" title="Reproduzir '+safe(e.name)+' pelo Google Drive" src="'+safe(drivePreviewUrl(e))+'" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe><span class="dw-drive-corner-shield" aria-hidden="true"></span></div>'
       :ready
         ?'<video id="dw-episode-video" class="watch-video" controls playsinline preload="metadata"'
           +(poster?' poster="'+safe(poster)+'"':'')+' src="'+safe(e.videoUrl)+'">'
@@ -253,7 +253,7 @@
       +'<p class="watch-summary">'+safe(e.description||p.description)+'</p></div>'
       +'<div class="watch-buttons">'
       +'<button class="watch-button" data-player-back="true">Voltar à série</button>'
-      +(ready&&!isDrive?'<button class="watch-button" data-fullscreen="true">⛶ Tela cheia</button>':'')
+      +(ready?'<button class="watch-button" data-fullscreen="true">⛶ Tela cheia</button>':'')
       +(previous?'<button class="watch-button" data-episode="'+safe(p.id)+':'+state.season+':'+safe(previous.number)+'">← Anterior</button>':'')
       +(next?'<button class="watch-button watch-button-primary" data-episode="'+safe(p.id)+':'+state.season+':'+safe(next.number)+'">Próximo episódio →</button>':'')
       +'</div></section>'
