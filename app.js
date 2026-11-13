@@ -121,7 +121,7 @@
     :'';
   function renderProjectDetail(){
     const p=projects.find(q=>q.id===currentProjectId);
-    if(!p){currentProjectId=null;renderHome();return}
+    if(!p||p.catalogVisible===false){currentProjectId=null;navigate('catalogo');return}
     const related=projects.filter(q=>q.catalogVisible!==false&&q.id!==p.id&&q.kind===p.kind).slice(0,5);
     const seasons=availableSeasons(p);
     if(seasons.length&&!seasons.includes(selectedSeason))selectedSeason=seasons[0];
@@ -539,6 +539,10 @@
           merged.set(ep.season+':'+ep.number,ep);
         }
         p.episodes=[...merged.values()].sort((a,b)=>seasonNumber(a)-seasonNumber(b)||Number(a.number)-Number(b.number));
+      }
+      if(currentProjectId&&projects.find(p=>p.id===currentProjectId)?.catalogVisible===false){
+        playerEpisode=null;currentProjectId=null;
+        navigate('catalogo');return;
       }
       if(!playerEpisode){
         const desired=String(location.hash||'').replace(/^#/,'');
