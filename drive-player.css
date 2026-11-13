@@ -153,3 +153,54 @@
 .dw-drive-embed--project .dw-project-drive-frame{display:block;width:100%;height:100%}
 .watch-stage:fullscreen{width:100vw;height:100vh;max-width:none;aspect-ratio:auto;border:0;border-radius:0}
 @media(max-width:760px){.dw-drive-corner-shield{width:55px;height:48px}}
+
+/* Tela de série: banner editorial e lista de episódios, SEM prévia de vídeo.
+   O player só é montado na rota dedicada #assistir/serie/temporada/episodio. */
+.detail-page--catalog-only .detail-hero{
+  height:clamp(495px,54vh,640px)!important;
+  min-height:495px!important;
+  padding-bottom:0!important;
+}
+.detail-page--catalog-only .detail-hero-body{
+  width:min(730px,68vw)!important;
+  max-width:calc(100% - 50px);
+  bottom:clamp(65px,9vh,115px);
+}
+.detail-page--catalog-only .detail-content{
+  position:relative;
+  z-index:2;
+  padding-top:12px;
+}
+.detail-page--catalog-only .detail-tabs{
+  scroll-margin-top:100px;
+}
+@media(max-width:850px){
+ .detail-page--catalog-only .detail-hero{
+   height:clamp(550px,71svh,690px)!important;
+   min-height:550px!important;
+   padding-bottom:0!important;
+ }
+ .detail-page--catalog-only .detail-hero-body{
+   position:absolute!important;
+   left:clamp(19px,4vw,35px)!important;
+   right:clamp(19px,4vw,35px)!important;
+   top:auto!important;
+   bottom:clamp(35px,7vh,75px)!important;
+   width:auto!important;
+   max-width:690px!important;
+   padding:0!important;
+ }
+}
+@media(max-width:760px){
+ .detail-page--catalog-only .detail-hero{
+   height:clamp(545px,72svh,715px)!important;
+   min-height:545px!important;
+   padding-bottom:0!important;
+ }
+ .detail-page--catalog-only .detail-hero-body{
+   left:19px!important;right:19px!important;
+   bottom:35px!important;max-width:none!important;
+ }
+ .detail-page--catalog-only .detail-content{padding-top:0}
+ .detail-page--catalog-only .detail-hero h1{font-size:clamp(38px,10vw,58px)}
+}
