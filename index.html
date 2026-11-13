@@ -14,8 +14,11 @@
   <link rel="stylesheet" href="./streaming-ui.css" />
   <link rel="stylesheet" href="./cinematic.css" />
   <link rel="stylesheet" href="./player-seasons.css" />
+  <link rel="stylesheet" href="./auth.css" />
   <link rel="icon" href="./assets/favicon.png" type="image/png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0" defer></script>
   <script src="./app.js" defer></script>
+  <script src="./auth.js" defer></script>
 </head>
 <body>
   <div id="app">
@@ -34,7 +37,8 @@
       <div class="header-actions">
         <label class="searchbox" aria-label="Buscar projetos"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input type="search" id="search" placeholder="Buscar séries, projetos..." autocomplete="off" /></label>
         <button class="mobile-search" aria-label="Buscar projetos" id="mobile-search-btn"><svg viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button>
-        <span class="avatar" title="Visitante">DW</span>
+        <button type="button" class="dw-account-trigger" id="dw-account-trigger" aria-label="Entrar com Google" aria-haspopup="true" aria-expanded="false"><span aria-hidden="true">G</span><span class="dw-signin-label"> Entrar</span></button>
+        <div class="dw-account-menu" id="dw-account-menu" hidden></div>
       </div>
     </header>
     <main id="main-content"></main>
