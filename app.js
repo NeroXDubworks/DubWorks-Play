@@ -85,7 +85,21 @@
   function updateNav(){document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));}
   function navigate(next){playerEpisode=null;currentProjectId=null;view=next;query='';search.value='';filter='Todos';if(location.hash!=='#'+next)history.pushState({},'','#'+next);render();window.scrollTo({top:0,behavior:'smooth'});}
   function showToast(t){let el=document.getElementById('toast');el.textContent=t;el.classList.add('visible');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('visible'),2800)}
-  function toggleFavorite(id){if(saved.has(id)){saved.delete(id);showToast('Removido da sua lista.')}else{saved.add(id);showToast('Adicionado à sua lista!')}localStorage.setItem('dw-play-favorites',JSON.stringify([...saved]));render()}
+  function toggleFavorite(id){
+    const wasSaved=saved.has(id);
+    if(wasSaved){saved.delete(id);showToast('Removido da sua lista.')}
+    else{saved.add(id);showToast('Adicionado à sua lista!')}
+    const auth=window.DWAuth;
+    if(auth?.isSignedIn()){
+      Promise.resolve(auth.syncFavorite(id,!wasSaved)).catch(()=>{
+        if(wasSaved)saved.add(id);else saved.delete(id);
+        render();
+      });
+    }else{
+      localStorage.setItem('dw-play-favorites',JSON.stringify([...saved]));
+    }
+    render();
+  }
   function renderProjectDetail(){
     const p=projects.find(q=>q.id===currentProjectId);
     if(!p){currentProjectId=null;renderHome();return}
@@ -364,5 +378,22 @@
   document.addEventListener('pointercancel',()=>{
     document.querySelectorAll('.card-touched').forEach(el=>el.classList.remove('card-touched'));
   });
+  window.DubWorksPlay={
+    getGuestFavorites(){
+      try{return JSON.parse(localStorage.getItem('dw-play-favorites')||'[]')}
+      catch{return []}
+    },
+    applyFavorites(slugs){
+      saved.clear();
+      for(const slug of slugs||[])if(projects.some(p=>p.id===slug))saved.add(slug);
+      render();
+    },
+    restoreGuestFavorites(){
+      const guest=this.getGuestFavorites();
+      saved.clear();
+      for(const slug of guest)if(projects.some(p=>p.id===slug))saved.add(slug);
+      render();
+    }
+  };
   syncRoute();
 })();
