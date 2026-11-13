@@ -260,7 +260,7 @@
       +'<div class="watch-toolbar">'
       +seasonMenu
       +(isDrive?'<span class="dw-drive-warning">Reprodução pelo Google Drive. Os controles ficam dentro do vídeo; o Drive não sincroniza o tempo assistido com o DubWorks Play.</span>'
-        +'<a class="watch-button" href="'+safe('https://drive.google.com/file/d/'+e.driveFileId+'/view'+(validDriveKey(e.driveResourceKey)?'?resourcekey='+encodeURIComponent(e.driveResourceKey):''))+'" target="_blank" rel="noopener noreferrer">Abrir no Drive ↗</a>'
+
         :ready?'<label for="dw-speed-select">Velocidade <select id="dw-speed-select"><option value="0.75">0,75×</option><option value="1" selected>Normal (1×)</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>'
           +'<button class="watch-button" data-pip="true">▣ Mini player</button>'
           +(progress>10?'<span class="watch-resume">Retomar em '+formatClock(progress)+'</span>':'')
