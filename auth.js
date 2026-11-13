@@ -155,6 +155,7 @@
     }
     renderAccount();
     app()?.refreshEditorControls?.();
+    window.DWEngagement?.renderComments?.();
   }
   async function refreshAccount(){
     if(!api)return;
