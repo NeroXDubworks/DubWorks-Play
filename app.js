@@ -337,11 +337,29 @@
     const screen=document.getElementById('dw-end-screen');
     if(!screen)return;
     screen.hidden=false;
+    document.getElementById('dw-watch-stage')?.classList.add('dw-is-ending');
     const video=document.getElementById('dw-episode-video');
     if(video&&!video.paused)video.pause();
+    const frame=document.getElementById('dw-drive-frame');
+    if(frame){
+      const original=frame.getAttribute('src');
+      if(original&&original!=='about:blank'){
+        frame.dataset.dwResumeSrc=original;
+        frame.src='about:blank';
+      }
+    }
     screen.querySelector('[data-close-end]')?.focus();
   }
-  function hideEndScreen(){const screen=document.getElementById('dw-end-screen');if(screen)screen.hidden=true;}
+  function hideEndScreen(){
+    const screen=document.getElementById('dw-end-screen');
+    if(screen)screen.hidden=true;
+    document.getElementById('dw-watch-stage')?.classList.remove('dw-is-ending');
+    const frame=document.getElementById('dw-drive-frame');
+    if(frame?.dataset.dwResumeSrc){
+      frame.src=frame.dataset.dwResumeSrc;
+      delete frame.dataset.dwResumeSrc;
+    }
+  }
   function openProject(id){
     if(!projects.some(p=>p.id===id))return;
     returnView=currentProjectId?returnView:view;
