@@ -79,7 +79,8 @@
         +'<span class="dw-role" id="dw-role"></span></div>'
         +'<div class="dw-account-actions">'
         +'<button type="button" data-dw-go-list>♡ Minha lista</button>'
-        +(['moderator','admin','director'].includes(role)?'<div class="dw-role-explainer">Perfil da equipe reconhecido. Painel administrativo em desenvolvimento.</div>':'')
+        +(['admin','director'].includes(role)?'<button type="button" class="dw-admin-menu-btn" data-dw-admin>✦ Publicar episódio do Drive</button>':'')
+        +(role==='moderator'?'<div class="dw-role-explainer">Moderação de comentários em desenvolvimento.</div>':'')
         +'<button type="button" data-dw-signout>Sair da conta</button>'
         +'</div>';
       fillText('#dw-account-name',name||'Conta DubWorks');
@@ -226,7 +227,8 @@
     login,logout,syncFavorite,
     getRole:()=>role,
     getUser:()=>user,
-    getClient:()=>api
+    getClient:()=>api,
+    getClientAsync:ensureClient
   };
   trigger.addEventListener('click',()=>{
     if(loginBusy)return;
@@ -244,6 +246,12 @@
     if(button.hasAttribute('data-dw-go-list')){
       setMenu(false);
       document.querySelector('[data-view="favoritos"]')?.click();
+      return;
+    }
+    if(button.hasAttribute('data-dw-admin')){
+      setMenu(false);
+      window.DWDrive?.openAdmin?.();
+      return;
     }
   });
   document.addEventListener('click',event=>{
