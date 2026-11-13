@@ -8,7 +8,7 @@
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'
   })[c]);
   const roles=['moderator','admin','director'];
-  let readToken=0, busy=false;
+  let readToken=0, busy=false, eventController=null;
   const formatDate=date=>{
     try{return new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'short',year:'numeric'}).format(new Date(date))}
     catch{return ''}
@@ -41,6 +41,7 @@
     }).join('')+'</div>';
   }
   async function renderComments(){
+    if(eventController){eventController.abort();eventController=null}
     const host=root(),episode=current();
     if(!host)return;
     const token=++readToken;
@@ -83,6 +84,8 @@
       +(staff&&comments.some(c=>c.status==='pending')?'<p class="dw-moderation-note">⚑ Há comentários aguardando moderação.</p>':'')
       +renderRows(comments,user?.id,staff)
       +'<p class="dw-comment-feedback" id="dw-comment-feedback" aria-live="polite" role="status"></p>';
+    eventController=new AbortController();
+    const signal=eventController.signal;
     host.addEventListener('submit',async event=>{
       if(event.target?.id!=='dw-comment-form')return;
       event.preventDefault();
@@ -104,7 +107,7 @@
         feedback(root(),'Comentário enviado! Ele aparecerá para todos após a aprovação da moderação.');
       }catch(error){console.error('DubWorks Play: comentário',error);feedback(root(),'Não foi possível enviar seu comentário. Tente novamente.')}
       finally{busy=false;if(button?.isConnected)button.disabled=false}
-    });
+    },{signal});
     host.addEventListener('click',async event=>{
       const button=event.target.closest('button');
       if(!button||busy)return;
@@ -133,7 +136,7 @@
         }catch(error){console.error(error);feedback(host,'Não foi possível excluir o comentário.')}
         finally{busy=false;if(button.isConnected)button.disabled=false}
       }
-    });
+    },{signal});
   }
   function feedback(host,message){
     const el=host?.querySelector('#dw-comment-feedback');
