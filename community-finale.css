@@ -1,0 +1,130 @@
+/* DubWorks Play · comentários e final de episódio cinematográfico */
+.dw-edit-action{margin:8px 0 0 9px;padding:8px 12px;min-height:34px;border:1px solid #8a7cbd;
+  border-radius:8px;background:#2d2458;color:#dbd6ff;font:900 12px 'Nunito',sans-serif;
+  cursor:pointer;transition:background .2s,transform .2s,border-color .2s}
+.dw-edit-action:hover,.dw-edit-action:focus-visible{background:#5a3cb5;border-color:#9de9ff;transform:translateY(-2px)}
+.dw-edit-series{margin:0 0 0 4px;align-self:center}
+.dw-unrated{background:#342d5a!important;color:#bfb9d9!important;border-color:#6c6499!important;font-size:11px!important;letter-spacing:0}
+.dw-series-editor{display:flex;flex-direction:column;gap:11px;border-radius:13px;
+  padding:17px 17px 15px;border:1px solid #6c58a1;background:#231942}
+.dw-series-heading{font:600 17px 'Fredoka',sans-serif;color:#e3dbff}
+.dw-series-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dw-series-editor>small{color:#bdb5dd;font:700 11px/1.5 'Nunito',sans-serif}
+.dw-series-editor button{width:max-content;max-width:100%;padding:10px 16px;border-radius:9px;cursor:pointer}
+.dw-episode-comments{padding:26px 2px 46px;margin-top:30px;border-top:1px solid #443d6c}
+.dw-comments-title{margin-bottom:23px}
+.dw-comments-title h2,.dw-episode-comments>h2{font:600 clamp(24px,3vw,34px) 'Fredoka',sans-serif;margin:0 0 7px;color:#fff}
+.dw-comments-title h2 span{color:#76dfff}
+.dw-comments-title p{font:700 13px/1.55 'Nunito',sans-serif;color:#bbb5dd;margin:0;max-width:720px}
+.dw-comments-loading,.dw-comments-empty{color:#b3afcf;font:700 13px/1.6 'Nunito',sans-serif}
+.dw-comments-login{display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  border:1px solid #60549a;background:linear-gradient(110deg,#28204f,#181633);
+  border-radius:14px;padding:22px;margin:20px 0}
+.dw-comments-login strong{font:600 22px 'Fredoka',sans-serif}
+.dw-comments-login p{color:#c3bfda;font:700 13px/1.55 'Nunito',sans-serif;margin:0}
+.dw-comments-login button,.dw-comment-form button[type=submit]{
+  background:linear-gradient(120deg,#924ce6,#5b43bd);color:white;
+  border:1px solid #ae84f4;border-radius:9px;padding:11px 18px;
+  font:900 12px 'Nunito',sans-serif;cursor:pointer;box-shadow:0 0 20px #6b40ad38}
+.dw-comments-login button:hover,.dw-comment-form button[type=submit]:hover{filter:brightness(1.18)}
+.dw-comment-form{display:flex;flex-direction:column;gap:10px;
+  border:1px solid #5a4a87;background:#18152f;padding:20px;border-radius:14px;margin-bottom:25px}
+.dw-comment-form label{font:900 13px 'Nunito',sans-serif;color:#eae6ff}
+.dw-comment-form textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:92px;
+  border:1px solid #696099;background:#262045;color:#fff;border-radius:9px;padding:13px 14px;
+  font:700 13px/1.6 'Nunito',sans-serif;outline:none}
+.dw-comment-form textarea:focus{border-color:#86dffc;box-shadow:0 0 0 3px #79dfff22}
+.dw-comment-form textarea::placeholder{color:#a8a0c6}
+.dw-comment-form-footer{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.dw-comment-form-footer>span{color:#a7a3c8;font:700 11px/1.5 'Nunito',sans-serif;max-width:600px}
+.dw-comment-form button:disabled{opacity:.5;cursor:wait}
+.dw-comments-list{display:flex;flex-direction:column;margin:20px 0 4px}
+.dw-comment{display:flex;gap:14px;padding:22px 5px;border-bottom:1px solid #4d416a88}
+.dw-comment-avatar{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:#41348f;color:#83e5ff;border:1px solid #7662c3;font:900 13px 'Nunito',sans-serif}
+.dw-comment-content{min-width:0;flex:1}
+.dw-comment-header{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin:1px 0 9px}
+.dw-comment-header strong{font:900 13px 'Nunito',sans-serif;color:#e9e5ff}
+.dw-comment-header time{font:700 11px 'Nunito',sans-serif;color:#9c99bc}
+.dw-comment-content p{font:700 13px/1.7 'Nunito',sans-serif;color:#d3d0e8;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.dw-comment-pending{color:#e6ce7a;border:1px solid #9b8347;border-radius:50px;
+  padding:3px 8px;font:900 10px 'Nunito',sans-serif}
+.dw-comment-actions{display:flex;gap:10px;flex-wrap:wrap;margin:9px 0 0}
+.dw-comment-actions button{border:1px solid #7566ab;background:#312957;color:#e8e4ff;border-radius:7px;padding:7px 10px;font:800 11px 'Nunito',sans-serif;cursor:pointer}
+.dw-comment-actions button:hover{background:#5841a9}
+.dw-comment-feedback{font:800 12px/1.5 'Nunito',sans-serif;color:#9de9ff;min-height:20px}
+.dw-moderation-note{color:#f9d39c;font:800 12px 'Nunito',sans-serif}
+.dw-end-screen{
+  position:absolute;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;
+  background:#070610ed;color:#fff;overflow:auto;animation:dwReveal .45s ease-out
+}
+.dw-end-screen[hidden]{display:none!important}
+.dw-end-shade{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 55% 33%,#44237886,transparent 68%),
+  linear-gradient(0deg,#05030eea,#120e24da);backdrop-filter:blur(14px)}
+.dw-end-inner{position:relative;z-index:1;display:flex;flex-direction:column;width:100%;max-width:1100px;
+  margin:auto;padding:clamp(14px,3vw,36px);box-sizing:border-box;gap:8px}
+.dw-end-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.dw-end-brand{color:#91e6ff;letter-spacing:2px;font:900 10px 'Nunito',sans-serif}
+.dw-end-close,.dw-end-return{background:#332751b8;border:1px solid #9587c7;color:#eee9ff;
+  border-radius:9px;padding:8px 13px;cursor:pointer;font:900 12px 'Nunito',sans-serif}
+.dw-end-close:hover,.dw-end-return:hover{background:#5d42a9;border-color:#9adfff}
+.dw-end-eyebrow{font:900 10px 'Nunito',sans-serif;letter-spacing:3px;color:#b6a8ff;margin:8px 0 0}
+.dw-end-inner h2{font:600 clamp(24px,3.3vw,43px) 'Fredoka',sans-serif;margin:0}
+.dw-end-inner h2 span{color:#8be5ff}
+.dw-end-lead{font:700 clamp(10px,1.2vw,13px) 'Nunito',sans-serif;color:#c7c3dd;margin:0 0 10px}
+.dw-ending-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dw-ending-card{position:relative;display:flex;flex-direction:column;gap:0;text-align:left;padding:0;
+  background:#18152f;border:1px solid #5e5089;border-radius:12px;overflow:hidden;cursor:pointer;
+  transform:translateY(0) scale(1);transition:transform .32s cubic-bezier(.2,.75,.2,1),
+  box-shadow .32s,border-color .32s}
+.dw-ending-card:hover,.dw-ending-card:focus-visible,.dw-ending-card:active{
+  transform:translateY(-9px) scale(1.025);border-color:#9ce7ff;
+  box-shadow:0 20px 30px #04020fc4,0 0 24px #775de158;z-index:3}
+.dw-ending-image{display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;
+  background-position:center;background-size:cover;position:relative;overflow:hidden}
+.dw-ending-image:before{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#0b092b8d,transparent 70%)}
+.dw-ending-play{position:relative;z-index:2;display:grid;place-items:center;width:43px;height:43px;
+  border-radius:50%;background:#32207bcc;border:1px solid #d0c7ff;
+  box-shadow:0 6px 17px #03020aa9;color:#fff;font-size:18px;transition:transform .28s,background .28s}
+.dw-ending-card:hover .dw-ending-play,.dw-ending-card:focus-visible .dw-ending-play{transform:scale(1.14);background:#7554d0}
+.dw-ending-details{display:flex;flex-direction:column;gap:5px;padding:10px 12px 12px;min-width:0;
+  transform:translateY(0);transition:transform .28s}
+.dw-ending-details strong{font:600 15px/1.15 'Fredoka',sans-serif;color:#fff;overflow-wrap:anywhere}
+.dw-ending-details small{font:800 10px 'Nunito',sans-serif;color:#b5eaff}
+.dw-ending-card:hover .dw-ending-details,.dw-ending-card:focus-visible .dw-ending-details{transform:translateY(-3px)}
+.dw-end-return{align-self:flex-start;margin-top:9px}
+.dw-show-suggestions{color:#9ceaff!important;border-color:#7d8ee3!important}
+@keyframes dwReveal{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:scale(1)}}
+@media(max-width:1000px){
+  .dw-ending-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dw-ending-card:nth-child(n+5){display:none}
+  .dw-end-inner{max-width:750px}
+}
+@media(max-width:760px){
+  .dw-edit-series{margin:10px 0 0}
+  .dw-episode-comments{padding:24px 16px 43px;margin-top:12px}
+  .dw-series-fields{grid-template-columns:1fr}
+  .dw-comment-form-footer{flex-direction:column;align-items:stretch}
+  .dw-comment-form-footer button{width:100%}
+  .dw-end-inner{padding:12px;gap:5px}
+  .dw-end-top{margin-bottom:4px}
+  .dw-end-brand{letter-spacing:1px;font-size:9px}
+  .dw-end-eyebrow{font-size:8px;letter-spacing:2px}
+  .dw-end-inner h2{font-size:21px}
+  .dw-end-lead{font-size:10px;line-height:1.3;margin-bottom:4px}
+  .dw-ending-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .dw-ending-card:nth-child(n+5){display:none}
+  .dw-ending-image{aspect-ratio:16/8}
+  .dw-ending-details{padding:6px 7px 8px;gap:3px}
+  .dw-ending-details strong{font-size:11px}
+  .dw-ending-details small{font-size:9px}
+  .dw-ending-play{width:28px;height:28px;font-size:12px}
+  .dw-end-return,.dw-end-close{padding:6px 9px;font-size:10px}
+  .dw-end-return{margin-top:3px}
+}
+@media(max-width:380px){.dw-end-inner h2{font-size:17px}.dw-end-lead{display:none}.dw-ending-card:nth-child(n+4){display:none}}
+@media(prefers-reduced-motion:reduce){
+  .dw-end-screen{animation:none}
+  .dw-ending-card,.dw-ending-details,.dw-ending-play{transition:none!important}
+}
