@@ -123,7 +123,7 @@
     const episodeCards=listed.length
       ?listed.map(e=>{
         const ready=isPlayable(e);
-        const previous=getProgress(p.id,seasonNumber(e),e.number);
+        const previous=e.mediaProvider==='google_drive'?0:getProgress(p.id,seasonNumber(e),e.number);
         return '<article class="detail-episode">'
           +'<div class="episode-cover" style="background-image:'+safe(getImage(p))+'"><span class="episode-index">T'+seasonNumber(e)+' · EP '+safe(e.number)+'</span></div>'
           +'<div class="detail-episode-copy"><div class="detail-episode-title">'+safe(e.name)+'</div>'
