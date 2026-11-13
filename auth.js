@@ -42,7 +42,8 @@
       });
       if(!authListenerAttached){
         authListenerAttached=true;
-        api.auth.onAuthStateChange(()=>{
+        api.auth.onAuthStateChange((event)=>{
+          if(event==='SIGNED_OUT')window.DWAdmin?.close?.();
           setTimeout(()=>refreshAccount().catch(console.error),0);
         });
       }
@@ -210,6 +211,7 @@
     const {error}=await api.auth.signOut();
     if(error){remember(null,'Não foi possível sair. Tente novamente.');return;}
     user=null;role='spectator';name='';profileEmail='';epoch++;
+    window.DWAdmin?.close?.();
     app()?.restoreGuestFavorites?.();
     setMenu(false);
     remember(null,'Você saiu da sua conta.');
