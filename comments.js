@@ -45,6 +45,11 @@
     if(eventController){eventController.abort();eventController=null}
     const host=root(),episode=current();
     if(!host)return;
+    // Preserva o rascunho quando o cargo ou a lista de comentários é
+    // atualizada sem que a pessoa tenha trocado de episódio.
+    const draft=host.dataset.episodeId===String(episode?.dbId||'')
+      ?(host.querySelector('#dw-comment-body')?.value||''):'';
+    host.dataset.episodeId=String(episode?.dbId||'');
     const token=++readToken;
     host.innerHTML='<div class="dw-comments-title"><h2>Comentários <span>✦</span></h2>'
       +'<p>Troque ideias com a comunidade após assistir.</p></div>'
@@ -76,7 +81,7 @@
       +'<p>Compartilhe sua opinião sobre '+escapeHtml(episode.title)+'. Comentários novos passam por moderação.</p></div>'
       +(user?'<form id="dw-comment-form" class="dw-comment-form">'
         +'<label for="dw-comment-body">Deixe seu comentário</label>'
-        +'<textarea id="dw-comment-body" name="body" rows="3" minlength="2" maxlength="1500" required placeholder="O que achou das vozes, cenas e momentos deste episódio?"></textarea>'
+        +'<textarea id="dw-comment-body" name="body" rows="3" minlength="2" maxlength="1500" required placeholder="O que achou das vozes, cenas e momentos deste episódio?">'+escapeHtml(draft)+'</textarea>'
         +'<div class="dw-comment-form-footer"><span>Respeite os demais participantes. Seu comentário será analisado antes de aparecer para todos.</span>'
         +'<button type="submit">Publicar comentário</button></div></form>'
         :'<div class="dw-comments-login"><strong>Quer participar da conversa?</strong>'
@@ -104,6 +109,7 @@
           user_id:check.user.id,episode_id:episode.dbId,body
         });
         if(insertError)throw insertError;
+        if(input)input.value='';
         await renderComments();
         feedback(root(),'Comentário enviado! Ele aparecerá para todos após a aprovação da moderação.');
       }catch(error){console.error('DubWorks Play: comentário',error);feedback(root(),'Não foi possível enviar seu comentário. Tente novamente.')}
