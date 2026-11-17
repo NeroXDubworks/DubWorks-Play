@@ -1,6 +1,6 @@
 # DubWorks Play 💙
 
-Catálogo independente da comunidade DubWorks, com identidade visual própria, login Google opcional, áreas de projetos e reprodução de episódios autorizados via Google Drive.
+Catálogo independente da comunidade DubWorks, com identidade visual própria, login Google obrigatório para reproduzir vídeos, áreas de projetos e reprodução de episódios autorizados via Google Drive.
 
 **Site:** https://dubworks-play.vercel.app/
 
@@ -55,7 +55,7 @@ As páginas de Termos e Privacidade são versões iniciais operacionais. **Solic
 
 1. Finalize e exporte o episódio em um formato aceito pelo Google Drive, como MP4.
 2. Faça upload do vídeo **no seu Google Drive**.
-3. Com as autorizações dos titulares confirmadas, abra o compartilhamento do arquivo e escolha **Qualquer pessoa com o link → Leitor** para permitir reprodução por visitantes sem login.
+3. Com as autorizações dos titulares confirmadas, abra o compartilhamento do arquivo e escolha **Qualquer pessoa com o link → Leitor** para permitir que usuários autenticados na plataforma assistam pelo player. O Google Drive ainda exige essa permissão de compartilhamento para incorporar o vídeo.
 4. Copie o link do próprio **arquivo**, normalmente `https://drive.google.com/file/d/ID_DO_VIDEO/view?usp=sharing`. Não use um link de pasta.
 5. Acesse o DubWorks Play e faça login com uma conta da **Diretoria** ou **Administração**.
 6. Clique no perfil e escolha **◈ Painel administrativo → Temporadas e episódios → ＋ Publicar pelo Drive**. Há também um atalho **＋ Publicar episódio pelo Drive** no perfil.
@@ -66,7 +66,7 @@ Se esse episódio já estiver cadastrado, o painel carrega seus dados e salva as
 
 ### Como funciona a reprodução
 
-Um vídeo publicado aparece no catálogo e pode ser aberto sem login. O link do Drive é convertido para um endereço seguro no formato `https://drive.google.com/file/d/ID_DO_VIDEO/preview`, apresentado por `iframe`. Os links antigos com `resourcekey` também são reconhecidos.
+Um vídeo publicado aparece no catálogo para qualquer visitante, mas **a reprodução exige login Google no DubWorks Play**. Sem login, a página do episódio mostra um convite para autenticação em vez do player. O link do Drive é convertido para um endereço seguro no formato `https://drive.google.com/file/d/ID_DO_VIDEO/preview`, apresentado por `iframe`. Os links antigos com `resourcekey` também são reconhecidos.
 
 O player na tela do episódio utiliza os **controles do Google Drive**, não um elemento HTML5 `video`. Portanto, o DubWorks Play **não controla a velocidade, a posição do vídeo nem consegue sincronizar automaticamente o tempo assistido** de arquivos do Drive. A funcionalidade de continuar assistindo na posição exata continua disponível apenas para vídeos hospedados compatíveis com HTML5.
 
@@ -103,11 +103,11 @@ Ao final de um vídeo hospedado diretamente com o player HTML5, aparece **automa
 
 ### Segurança
 
-- Entrar com Google é **opcional** para assistir.
+- Entrar com Google é **obrigatório para reproduzir vídeos**. Visitar o catálogo e ler os títulos continua permitido sem login.
 - As permissões para publicar são verificadas no banco Supabase com **Row Level Security (RLS)**: Diretoria e Administração podem editar; espectadores não podem publicar, mesmo manipulando o HTML.
 - O site usa apenas uma chave pública `sb_publishable_` no navegador; nenhum segredo Google, token de Drive ou chave administrativa deve ser inserido no código público.
 - O vídeo só fica liberado no registro do catálogo quando há link de mídia e confirmação explícita dos direitos de publicação.
-- O login Google dos espectadores **não concede acesso ao Drive pessoal de ninguém**.
+- O login Google dos espectadores **não concede acesso ao Drive pessoal de ninguém**. O banco não entrega as colunas de links de vídeo para o papel anônimo; após autenticar, o site carrega o endereço do arquivo. Isso não é DRM: arquivos do Drive compartilhados com qualquer pessoa com o link ainda podem ser encontrados e acessados fora da plataforma, caso alguém obtenha o endereço.
 
 ## Recursos do catálogo
 
