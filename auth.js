@@ -80,6 +80,7 @@
         +'<span class="dw-role" id="dw-role"></span></div>'
         +'<div class="dw-account-actions">'
         +'<button type="button" data-dw-go-list>♡ Minha lista</button>'
+        +'<button type="button" data-dw-history>◷ Histórico de episódios</button>'
         +(['admin','director','moderator'].includes(role)?'<button type="button" class="dw-admin-menu-btn" data-dw-backoffice>◈ Painel administrativo</button>':'')
         +(['admin','director'].includes(role)?'<button type="button" data-dw-admin>＋ Publicar episódio pelo Drive</button>':'')
         +'<button type="button" data-dw-signout>Sair da conta</button>'
@@ -157,6 +158,7 @@
     renderAccount();
     app()?.refreshEditorControls?.();
     window.DWEngagement?.renderComments?.();
+    window.DWFeatures?.refreshViewer?.();
   }
   async function refreshAccount(){
     if(!api)return;
@@ -167,7 +169,9 @@
     if(result.error||!account){
       user=null;role='spectator';name='';profileEmail='';
       app()?.restoreGuestFavorites?.();
-      renderAccount();return;
+      renderAccount();
+      window.DWFeatures?.refreshViewer?.();
+      return;
     }
     const changedUser=user?.id!==account.id;
     user=account;profileEmail=account.email||'';
@@ -213,6 +217,7 @@
     user=null;role='spectator';name='';profileEmail='';epoch++;
     window.DWAdmin?.close?.();
     app()?.restoreGuestFavorites?.();
+    window.DWFeatures?.refreshViewer?.();
     setMenu(false);
     remember(null,'Você saiu da sua conta.');
   }
@@ -247,6 +252,11 @@
     if(button.hasAttribute('data-dw-signin')){login();return;}
     if(button.hasAttribute('data-dw-signout')){logout();return;}
     if(button.hasAttribute('data-dw-dismiss')){setMenu(false);return;}
+    if(button.hasAttribute('data-dw-history')){
+      setMenu(false);
+      window.DWFeatures?.showHistory?.();
+      return;
+    }
     if(button.hasAttribute('data-dw-go-list')){
       setMenu(false);
       document.querySelector('[data-view="favoritos"]')?.click();
