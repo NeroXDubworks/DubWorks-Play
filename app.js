@@ -298,7 +298,7 @@
       +'<section class="watch-underplayer"><div class="watch-copy">'
       +'<p class="watch-series">'+safe(p.title)+'</p>'
       +'<h1 class="watch-episode-name">T'+state.season+' · EP '+state.number+' — '+safe(e.name)+'</h1>'
-      +'<p class="watch-meta">'+safe(e.status)+' · '+(ready?'Pronto para assistir':'Aguardando publicação')
+      +'<p class="watch-meta">'+safe(e.status)+' · '+(released?'Publicado':'Aguardando publicação')
       +' · <span class="dw-watch-age">'+safe(p.ageRating?p.ageRating==='L'?'Livre':p.ageRating+' anos':'Não classificado')+'</span>'
       +(p.releaseYear?' · '+safe(p.releaseYear):'')+'</p>'
       +'<p class="watch-summary">'+safe(e.description||p.description)+'</p></div>'
@@ -321,7 +321,7 @@
       +'</div>'
       +'<section id="dw-episode-social" class="dw-episode-social" aria-label="Curtidas e histórico">Carregando opções da conta...</section>'
       +'<section class="watch-next"><h2>Mais episódios desta temporada</h2><div class="watch-next-cards">'
-      +currentEpisodes.map(item=>'<button class="watch-next-item" data-episode="'+safe(p.id)+':'+state.season+':'+safe(item.number)+'" aria-current="'+(item.number===e.number)+'"><strong>EP '+safe(item.number)+' — '+safe(item.name)+'</strong><span>'+safe(item.status)+(isPlayable(item)?' · Assistir':' · Indisponível')+'</span></button>').join('')
+      +currentEpisodes.map(item=>'<button class="watch-next-item" data-episode="'+safe(p.id)+':'+state.season+':'+safe(item.number)+'" aria-current="'+(item.number===e.number)+'"><strong>EP '+safe(item.number)+' — '+safe(item.name)+'</strong><span>'+safe(item.status)+(isReleased(item)?' · Assistir':' · Indisponível')+'</span></button>').join('')
       +'</div></section>'
       +'<section id="dw-episode-credits" class="dw-episode-credits" aria-label="Elenco do episódio">Carregando créditos...</section>'
       +'<section id="dw-episode-comments" class="dw-episode-comments" aria-label="Comentários do episódio"><h2>Comentários</h2><p>Carregando comentários...</p></section>'
@@ -567,7 +567,7 @@
       const e=episodeFor(p,playerEpisode.season,playerEpisode.number);
       if(!p||!e)return null;
       return {slug:p.id,title:e.name,dbId:e.dbId||null,season:playerEpisode.season,number:playerEpisode.number,
-        published:isPlayable(e)};
+        published:isReleased(e)};
     },
     applyPublishedEpisodes(rows,metadata){
       // Se uma URL de episódio é aberta diretamente antes da consulta ao Supabase,
