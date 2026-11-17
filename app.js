@@ -330,7 +330,7 @@
     video.addEventListener('pause',()=>{
       if(Number.isFinite(video.currentTime)){
         saveProgress(state.projectId,state.season,state.number,video.currentTime);
-        window.DWFeatures?.syncTime?.(Math.floor(video.currentTime));
+        if(!video.ended)window.DWFeatures?.syncTime?.(Math.floor(video.currentTime));
       }
     });
     video.addEventListener('ended',()=>{
