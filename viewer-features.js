@@ -159,7 +159,6 @@ async function toggleLike(){
  const req=active?db.from('episode_likes').delete().eq('user_id',account.id).eq('episode_id',ep.dbId)
   :db.from('episode_likes').insert({user_id:account.id,episode_id:ep.dbId});
  const {error}=await req;if(error){alertMsg('Não foi possível registrar sua curtida.');return}
- if(!active)track('favorite_added',ep.slug); // counted as a positive interaction
  await renderEpisode();
 }
 async function markWatched(done=true){
