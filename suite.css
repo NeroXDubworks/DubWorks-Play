@@ -71,29 +71,31 @@
 .dw-public-credit small{display:block;color:#b9b0d5;font:700 11px 'Nunito',sans-serif;margin-top:4px;overflow-wrap:anywhere}
 .dw-comment-actions .dw-comment-report{color:#e9cfed;border-color:#8a6a97}
 
-/* Preferências discretas: abertas SOMENTE pelo rodapé. */
-.dw-privacy-overlay{position:fixed;inset:0;z-index:980;display:grid;place-items:center;padding:18px;background:rgba(3,3,16,.76);backdrop-filter:blur(10px)}
-.dw-privacy-card{width:min(540px,100%);padding:clamp(20px,3vw,29px);border-radius:20px;border:1px solid #8e70bd;background:linear-gradient(155deg,#25184b,#15102e);box-shadow:0 30px 90px #0009;color:#f6f1ff}
-.dw-privacy-card header{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:17px}
-.dw-privacy-card header span{color:#85e3fa;font:900 10px 'Nunito',sans-serif;letter-spacing:2px}
-.dw-privacy-card h2{margin:5px 0 0;font:600 clamp(24px,4vw,30px) 'Fredoka',sans-serif;line-height:1.15;color:#fff}
-.dw-privacy-card header button{border:1px solid #7764a7;background:#31224e;color:#f8f4ff;border-radius:9px;padding:9px 12px;cursor:pointer}
-.dw-privacy-card p{margin:0 0 21px;font:700 12px/1.7 'Nunito',sans-serif;color:#cfc7df}
-.dw-privacy-switch{display:flex;align-items:center;gap:14px;cursor:pointer;border:1px solid #66518f;border-radius:13px;background:#231b47;padding:17px}
-.dw-privacy-switch>span:first-child{flex:1;min-width:0}
-.dw-privacy-switch strong{display:block;font:900 14px 'Nunito',sans-serif;color:#fff;margin-bottom:4px}
-.dw-privacy-switch small{display:block;color:#b5abd1;font:700 11px/1.55 'Nunito',sans-serif}
-.dw-privacy-switch input{width:1px;height:1px;position:absolute;opacity:0;pointer-events:none}
-.dw-switch-track{position:relative;width:47px;height:27px;border-radius:30px;background:#50456d;border:1px solid #8b7aab;flex:none;transition:background .15s}
-.dw-switch-track:before{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#eae4f7;transition:transform .15s}
-.dw-privacy-switch input:checked+.dw-switch-track{background:#7747c9;border-color:#b88afa}
-.dw-privacy-switch input:checked+.dw-switch-track:before{transform:translateX(19px);background:#fff}
-.dw-privacy-switch input:focus-visible+.dw-switch-track{outline:2px solid #96e7ff;outline-offset:4px}
-.dw-privacy-card-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:20px}
-.dw-privacy-card-actions a{color:#aceafd;font:800 11px 'Nunito',sans-serif}
-.dw-privacy-card-actions button{padding:12px 17px;border-radius:10px;border:1px solid #c28afa;background:#7543bc;color:#fff;font:900 12px 'Nunito',sans-serif;cursor:pointer}
-.dw-privacy-card-actions button:hover{background:#905bd2}
-@media(max-width:520px){.dw-privacy-card-actions{align-items:stretch;flex-direction:column}.dw-privacy-card-actions button{width:100%}.dw-privacy-switch{padding:13px}}
+/* Consentimento curto, discreto e sem bloquear o streaming. */
+.dw-cookie-prompt{
+ position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:550;
+ display:flex;align-items:center;justify-content:space-between;gap:22px;
+ width:max-content;max-width:calc(100vw - 28px);
+ padding:12px 14px 12px 18px;border:1px solid #7e64b6;border-radius:13px;
+ background:#191335f5;box-shadow:0 9px 35px #060417a8;color:#f8f5ff;
+}
+.dw-cookie-label{font:900 13px 'Nunito',sans-serif;white-space:nowrap}
+.dw-cookie-buttons{display:flex;gap:8px}
+.dw-cookie-buttons button{
+ padding:9px 12px;min-height:36px;border-radius:9px;white-space:nowrap;
+ border:1px solid #74619f;background:#312750;color:#fff;
+ font:900 11px 'Nunito',sans-serif;cursor:pointer
+}
+.dw-cookie-buttons button:last-child{background:#7947bc;border-color:#a67ce2}
+.dw-cookie-buttons button:hover{filter:brightness(1.2)}
+.dw-cookie-buttons button:focus-visible{outline:2px solid #91eaff;outline-offset:2px}
+@media(max-width:520px){
+ .dw-cookie-prompt{bottom:9px;width:calc(100vw - 18px);max-width:420px;
+  justify-content:center;gap:11px;padding:11px 10px;flex-wrap:wrap}
+ .dw-cookie-label{font-size:12px}
+ .dw-cookie-buttons{gap:6px}
+ .dw-cookie-buttons button{font-size:10px;padding:8px 10px}
+}
 .dw-history-modal{position:fixed;inset:0;z-index:950;display:grid;place-items:center;background:#03030de8;padding:17px;backdrop-filter:blur(11px)}
 .dw-history-card{width:min(700px,100%);max-height:min(85vh,840px);overflow:auto;border:1px solid #9476bb;border-radius:17px;background:#1b163d;box-shadow:0 30px 95px #000b;padding:25px;color:#fff}
 .dw-history-card header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:18px}
