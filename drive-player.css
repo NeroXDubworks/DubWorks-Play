@@ -204,3 +204,77 @@
  .detail-page--catalog-only .detail-content{padding-top:0}
  .detail-page--catalog-only .detail-hero h1{font-size:clamp(38px,10vw,58px)}
 }
+
+
+/* Episódio publicado, porém reprodução restrita a contas Google autenticadas. */
+.dw-play-login-gate{
+  position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;
+  background-size:cover;background-position:center;isolation:isolate;padding:20px;
+  overflow-y:auto;
+}
+.dw-play-login-shade{
+  position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(120deg,rgba(7,6,27,.97),rgba(26,15,59,.91)),
+    radial-gradient(circle at 70% 30%,rgba(93,52,168,.36),transparent 70%);
+  backdrop-filter:blur(15px);
+}
+.dw-play-login-card{
+  width:min(540px,100%);max-height:100%;display:flex;align-items:center;
+  flex-direction:column;justify-content:center;gap:12px;padding:23px 18px;
+  text-align:center;
+}
+.dw-play-login-badge{
+  color:#93e9ff;letter-spacing:2.2px;font:900 10px 'Nunito',sans-serif;
+}
+.dw-play-login-lock{
+  display:grid;place-items:center;width:67px;height:67px;background:#43327e;
+  border:1px solid #8e7be3;border-radius:21px;color:#c7edff;
+  font-size:34px;box-shadow:0 0 45px rgba(131,87,235,.35);margin:3px 0 5px;
+}
+.dw-play-login-card h2{
+  margin:0;color:#fff;font:600 clamp(24px,3.5vw,39px)/1.12 'Fredoka',sans-serif;
+}
+.dw-play-login-card p{
+  color:#cdc6e5;max-width:420px;margin:0 0 5px;
+  font:700 clamp(12px,1.5vw,15px)/1.55 'Nunito',sans-serif;
+}
+.dw-play-login-card p strong{color:#fff}
+.dw-play-login-button{
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  color:#fff;background:linear-gradient(105deg,#8e47da,#613ecc);
+  border:1px solid #b793fc;border-radius:12px;
+  padding:13px 23px;min-height:50px;cursor:pointer;
+  font:900 14px 'Nunito',sans-serif;
+  box-shadow:0 9px 25px rgba(92,53,185,.35);
+  transition:transform .2s,background .2s,box-shadow .2s;
+}
+.dw-play-login-button:hover,.dw-play-login-button:focus-visible{
+  transform:translateY(-3px);box-shadow:0 14px 30px rgba(102,72,195,.5);
+  filter:brightness(1.12);
+}
+.dw-play-login-button:focus-visible{outline:2px solid #9ee9ff;outline-offset:3px}
+.dw-google-g{
+  display:grid;place-items:center;flex:none;width:25px;height:25px;
+  color:#4285f4;background:#fff;border-radius:50%;
+  font:900 17px Arial,sans-serif;
+}
+.dw-play-login-card small{
+  color:#a9a3c6;font:700 11px 'Nunito',sans-serif;
+}
+.dw-play-loading .watch-unavailable-icon{animation:dw-login-loading 1.5s linear infinite}
+@keyframes dw-login-loading{to{transform:rotate(360deg)}}
+@media(max-width:760px){
+  .dw-play-login-gate{padding:8px}
+  .dw-play-login-card{gap:7px;padding:10px}
+  .dw-play-login-lock{width:44px;height:44px;border-radius:13px;font-size:23px;margin:0}
+  .dw-play-login-badge{font-size:8px}
+  .dw-play-login-card h2{font-size:clamp(20px,5vw,27px)}
+  .dw-play-login-card p{font-size:11px;line-height:1.45;margin:0}
+  .dw-play-login-button{min-height:38px;padding:8px 13px;border-radius:8px;font-size:11px}
+  .dw-google-g{width:22px;height:22px;font-size:14px}
+  .dw-play-login-card small{font-size:9px}
+}
+@media(prefers-reduced-motion:reduce){
+  .dw-play-login-button{transition:none}
+  .dw-play-loading .watch-unavailable-icon{animation:none}
+}
