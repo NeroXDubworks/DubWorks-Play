@@ -37,6 +37,7 @@
           ?'<button type="button" data-mod-comment="'+escapeHtml(comment.id)+'" data-mod-status="approved">✓ Aprovar</button>'
            +'<button type="button" data-mod-comment="'+escapeHtml(comment.id)+'" data-mod-status="rejected">✕ Rejeitar</button>':'')
         +(own?'<button type="button" data-delete-comment="'+escapeHtml(comment.id)+'">Excluir</button>':'')
+        +(!own&&comment.status==='approved'?'<button type="button" class="dw-comment-report" data-dw-report-comment="'+escapeHtml(comment.id)+'">⚑ Denunciar</button>':'')
         +'</div></div></article>';
     }).join('')+'</div>';
   }
