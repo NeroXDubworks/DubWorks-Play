@@ -45,10 +45,16 @@
   }
   async function loadPublicCatalogue(){
     const api=await getClient();
+    // Para visitantes, buscar somente os metadados públicos do episódio.
+    // Colunas com links de mídia são liberadas exclusivamente a contas logadas.
+    const {data:authData,error:authError}=await api.auth.getUser();
+    const signedIn=Boolean(!authError&&authData?.user);
+    const episodeFields='id,season_id,episode_number,title,synopsis,duration_seconds,thumbnail_url,media_provider,status';
+    const protectedFields=episodeFields+',drive_file_id,drive_resource_key,video_url';
     const [seriesResp,seasonsResp,epsResp]=await Promise.all([
       api.from('series').select('id,slug,title,synopsis,kind,genres,age_rating,release_year,cover_url,banner_url,status').eq('status','published'),
       api.from('seasons').select('id,series_id,season_number').eq('status','published'),
-      api.from('episodes').select('id,season_id,episode_number,title,synopsis,duration_seconds,thumbnail_url,media_provider,drive_file_id,drive_resource_key,video_url,status').eq('status','published')
+      api.from('episodes').select(signedIn?protectedFields:episodeFields).eq('status','published')
     ]);
     if(seriesResp.error)throw seriesResp.error;
     if(seasonsResp.error)throw seasonsResp.error;
@@ -64,8 +70,9 @@
         slug:serie.slug,dbId:e.id,season:season.season_number,number:e.episode_number,
         name:e.title,description:e.synopsis,
         thumbnailUrl:e.thumbnail_url,durationSeconds:e.duration_seconds,
-        mediaProvider:e.media_provider,driveFileId:e.drive_file_id,
-        driveResourceKey:e.drive_resource_key,videoUrl:e.video_url,
+        mediaProvider:e.media_provider,driveFileId:signedIn?(e.drive_file_id||null):null,
+        driveResourceKey:signedIn?(e.drive_resource_key||null):null,
+        videoUrl:signedIn?(e.video_url||null):null,
         published:true
       });
     }
