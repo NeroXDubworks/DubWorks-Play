@@ -170,6 +170,8 @@
       user=null;role='spectator';name='';profileEmail='';
       app()?.restoreGuestFavorites?.();
       renderAccount();
+      app()?.refreshPlaybackGate?.();
+      window.DWDrive?.refresh?.();
       window.DWFeatures?.refreshViewer?.();
       return;
     }
@@ -178,6 +180,16 @@
     name=String(account.user_metadata?.full_name||account.user_metadata?.name||'').slice(0,80);
     if(changedUser||role==='unavailable')role='loading';
     renderAccount();
+    if(changedUser){
+      try{
+        const returnRoute=sessionStorage.getItem('dw-play-after-login');
+        sessionStorage.removeItem('dw-play-after-login');
+        if(returnRoute&&/^#assistir\/[a-z0-9-]+\/\d+\/\d+$/i.test(returnRoute)
+          &&window.location.hash!==returnRoute)window.location.hash=returnRoute;
+      }catch{}
+    }
+    app()?.refreshPlaybackGate?.();
+    window.DWDrive?.refresh?.();
     await refreshRole();
     if(expected!==epoch)return;
     // Não bloqueia a visualização do cargo se o carregamento dos favoritos falhar.
@@ -193,6 +205,11 @@
       const client=await ensureClient();
       // Escopos básicos de identificação; nenhum acesso ao Drive do espectador.
       const redirectTo=window.location.origin+window.location.pathname;
+      // Preserva o episódio escolhido enquanto o usuário passa pelo Google.
+      const pendingRoute=String(window.location.hash||'');
+      if(/^#assistir\/[a-z0-9-]+\/\d+\/\d+$/i.test(pendingRoute)){
+        try{sessionStorage.setItem('dw-play-after-login',pendingRoute)}catch{}
+      }
       const {error}=await client.auth.signInWithOAuth({
         provider:'google',
         options:{redirectTo,queryParams:{prompt:'select_account'}}
@@ -216,6 +233,8 @@
     if(error){remember(null,'Não foi possível sair. Tente novamente.');return;}
     user=null;role='spectator';name='';profileEmail='';epoch++;
     window.DWAdmin?.close?.();
+    app()?.refreshPlaybackGate?.();
+    window.DWDrive?.refresh?.();
     app()?.restoreGuestFavorites?.();
     window.DWFeatures?.refreshViewer?.();
     setMenu(false);
