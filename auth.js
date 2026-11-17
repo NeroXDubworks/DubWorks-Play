@@ -47,7 +47,7 @@
           // TOKEN_REFRESHED não é uma nova entrada: não reconstruir o player.
           if(!['INITIAL_SESSION','SIGNED_IN','SIGNED_OUT','USER_UPDATED'].includes(event))return;
           if(event==='SIGNED_OUT')window.DWAdmin?.close?.();
-          setTimeout(()=>refreshAccount().catch(console.error),0);
+          setTimeout(()=>refreshAccount(event).catch(console.error),0);
         });
       }
       return api;
@@ -163,10 +163,13 @@
     window.DWEngagement?.renderComments?.();
     window.DWFeatures?.refreshViewer?.();
   }
-  async function refreshAccount(){
+  async function refreshAccount(authEvent=null){
     if(!api)return;
     const expected=++epoch;
-    const result=await api.auth.getUser();
+    // SIGNED_OUT é confirmação do SDK, mesmo se a rede não responder.
+    const result=authEvent==='SIGNED_OUT'
+      ?{data:{user:null},error:null}
+      :await api.auth.getUser();
     if(expected!==epoch)return;
     // Uma falha momentânea de rede ao voltar à aba não equivale a logout.
     // Só removemos uma sessão existente quando o SDK a confirma ausente.
