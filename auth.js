@@ -43,6 +43,9 @@
       if(!authListenerAttached){
         authListenerAttached=true;
         api.auth.onAuthStateChange((event)=>{
+          // O Supabase renova tokens quando a aba volta ao foco.
+          // TOKEN_REFRESHED não é uma nova entrada: não reconstruir o player.
+          if(!['INITIAL_SESSION','SIGNED_IN','SIGNED_OUT','USER_UPDATED'].includes(event))return;
           if(event==='SIGNED_OUT')window.DWAdmin?.close?.();
           setTimeout(()=>refreshAccount().catch(console.error),0);
         });
@@ -165,14 +168,23 @@
     const expected=++epoch;
     const result=await api.auth.getUser();
     if(expected!==epoch)return;
+    // Uma falha momentânea de rede ao voltar à aba não equivale a logout.
+    // Só removemos uma sessão existente quando o SDK a confirma ausente.
+    if(result.error&&user){
+      console.warn('DubWorks Play: não foi possível conferir a sessão; preservando a reprodução',result.error);
+      return;
+    }
     const account=result.data?.user;
-    if(result.error||!account){
+    if(!account){
+      const hadSession=Boolean(user);
       user=null;role='spectator';name='';profileEmail='';
-      app()?.restoreGuestFavorites?.();
       renderAccount();
-      app()?.refreshPlaybackGate?.();
-      window.DWDrive?.refresh?.();
-      window.DWFeatures?.refreshViewer?.();
+      if(hadSession){
+        app()?.restoreGuestFavorites?.();
+        app()?.refreshPlaybackGate?.();
+        window.DWDrive?.refresh?.();
+        window.DWFeatures?.refreshViewer?.();
+      }
       return;
     }
     const changedUser=user?.id!==account.id;
@@ -188,12 +200,18 @@
           &&window.location.hash!==returnRoute)window.location.hash=returnRoute;
       }catch{}
     }
-    app()?.refreshPlaybackGate?.();
-    window.DWDrive?.refresh?.();
+    // Mudar de aba, renovar o token ou consultar o cargo NÃO altera a conta.
+    // Carregar catálogo, favoritos ou reabrir o iframe só se a identidade mudou.
+    if(changedUser){
+      app()?.refreshPlaybackGate?.();
+      window.DWDrive?.refresh?.();
+    }
     await refreshRole();
     if(expected!==epoch)return;
-    // Não bloqueia a visualização do cargo se o carregamento dos favoritos falhar.
-    loadFavorites(account.id).catch(error=>console.warn('Erro ao sincronizar favoritos',error));
+    if(changedUser){
+      // Favoritos são sincronizados na entrada, não a cada renovação do token.
+      loadFavorites(account.id).catch(error=>console.warn('Erro ao sincronizar favoritos',error));
+    }
   }
   async function login(){
     if(loginBusy)return;
