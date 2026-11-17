@@ -637,15 +637,20 @@
       catch{return []}
     },
     applyFavorites(slugs){
+      const next=new Set((slugs||[]).filter(slug=>projects.some(p=>p.id===slug)));
+      if(saved.size===next.size&&[...saved].every(slug=>next.has(slug)))return;
       saved.clear();
-      for(const slug of slugs||[])if(projects.some(p=>p.id===slug))saved.add(slug);
-      render();
+      for(const slug of next)saved.add(slug);
+      // Atualização dos corações não deve destruir o iframe/vídeo em reprodução.
+      if(!playerEpisode)render();
     },
     restoreGuestFavorites(){
       const guest=this.getGuestFavorites();
+      const next=new Set(guest.filter(slug=>projects.some(p=>p.id===slug)));
+      if(saved.size===next.size&&[...saved].every(slug=>next.has(slug)))return;
       saved.clear();
-      for(const slug of guest)if(projects.some(p=>p.id===slug))saved.add(slug);
-      render();
+      for(const slug of next)saved.add(slug);
+      if(!playerEpisode)render();
     }
   };
   syncRoute();
