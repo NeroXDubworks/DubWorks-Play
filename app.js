@@ -312,7 +312,7 @@
       +'<div class="watch-toolbar">'
       +seasonMenu
       +(needsLogin?'<span class="dw-drive-warning">Entre com Google para liberar a reprodução do episódio.</span>'
-        :isDrive?'<button class="watch-button dw-show-suggestions" data-show-end="true">✓ Terminei • Ver sugestões</button><span class="dw-drive-warning">O Google Drive não informa quando o vídeo termina. Use “Terminei” para abrir as sugestões.</span>'
+        :isDrive?'<button class="watch-button dw-show-suggestions" data-show-end="true">✓ Terminei • Ver sugestões</button><span class="dw-drive-warning"></span>'
 
         :canPlay?'<label for="dw-speed-select">Velocidade <select id="dw-speed-select"><option value="0.75">0,75×</option><option value="1" selected>Normal (1×)</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>'
           +'<button class="watch-button" data-pip="true">▣ Mini player</button>'
