@@ -402,6 +402,9 @@
      +'<a href="https://supabase.com/dashboard/project/wmqbnyaygerbmgiyggwi" target="_blank" rel="noopener noreferrer"><span>▥</span><strong>Supabase • DubWorks Play</strong><small>Banco, autenticação e permissões</small><b>↗</b></a>'
      +'<a href="https://drive.google.com/drive/u/0/my-drive" target="_blank" rel="noopener noreferrer"><span>☁</span><strong>Google Drive</strong><small>Armazenamento dos arquivos autorizados</small><b>↗</b></a>'
      +'<a href="https://vercel.com/dashboard" target="_blank" rel="noopener noreferrer"><span>△</span><strong>Vercel</strong><small>Publicações do site</small><b>↗</b></a>'
+     +'</div><div class="dw-bo-settings-grid">'
+     +'<a href="./privacy.html" target="_blank" rel="noopener noreferrer"><span>♧</span><strong>Política de privacidade</strong><small>Dados, fornecedores e direitos dos usuários</small><b>↗</b></a>'
+     +'<a href="./terms.html" target="_blank" rel="noopener noreferrer"><span>▤</span><strong>Termos de uso</strong><small>Regras e publicação autorizada de obras</small><b>↗</b></a>'
      +'</div><section class="dw-bo-panel"><h3>Segurança de publicação</h3>'
      +'<p>O login Google dos espectadores não concede acesso ao seu Drive. Publicações precisam de autorização dos titulares dos conteúdos.</p>'
      +'<p>Não há controle de download ou métricas reais de visualização com o player incorporado do Drive. Essas funções exigiriam outra infraestrutura.</p></section>';
