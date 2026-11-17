@@ -1,0 +1,26 @@
+
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#080920;color:#eae7ff;font:500 15px/1.8 'Nunito',system-ui,sans-serif}
+a{color:#8fe7ff}
+a:hover{text-decoration:none}
+.legal-nav{display:flex;justify-content:space-between;align-items:center;gap:20px;background:#151038;border-bottom:1px solid #5e4b91;padding:15px clamp(20px,6vw,85px)}
+.legal-logo{font:600 25px 'Fredoka',sans-serif;color:#fff;text-decoration:none}
+.legal-logo em{font:900 12px 'Nunito',sans-serif;color:#8ae7ff;letter-spacing:2px}
+.legal-nav>.legal-back{border:1px solid #7963a9;padding:8px 15px;border-radius:9px;color:#f0ecff;text-decoration:none;font:900 12px 'Nunito',sans-serif}
+.legal-nav>.legal-back:hover{background:#40317c}
+.legal-head{padding:70px max(24px,calc((100vw - 860px)/2)) 45px;background:radial-gradient(circle at 85% 12%,#453277,#151237 45%,#0c0c2a 100%);border-bottom:1px solid #514078}
+.legal-head span{font:900 10px 'Nunito',sans-serif;letter-spacing:2.5px;color:#8ae2ff}
+.legal-head h1{font:600 clamp(34px,6vw,57px)/1.1 'Fredoka',sans-serif;margin:16px 0;color:#fff}
+.legal-head p{margin:0;max-width:720px;color:#c8c0df;font:700 13px/1.7 'Nunito',sans-serif}
+.legal-main{max-width:900px;margin:auto;padding:35px 24px 90px}
+.legal-main h2{font:600 26px 'Fredoka',sans-serif;color:#fff;margin:34px 0 11px}
+.legal-main p,.legal-main li{color:#c7c4dd}
+.legal-main strong{color:#e8e4ff}
+.legal-main ul{padding-left:24px}
+.legal-main li{margin:7px 0}
+.legal-note{padding:17px 20px;border:1px solid #7a61a8;background:#251c4c;border-radius:13px;color:#d5c9f4}
+.legal-date{color:#a9a2d2;font:900 12px 'Nunito',sans-serif;letter-spacing:.5px}
+.legal-footer{padding:25px;text-align:center;border-top:1px solid #483c6e;color:#b7b0d0;font:800 12px 'Nunito',sans-serif}
+.legal-footer a{margin:0 8px}
+@media(max-width:600px){.legal-head{padding-top:50px}.legal-nav{padding:12px 18px}.legal-logo{font-size:20px}.legal-nav>.legal-back{font-size:11px}}
