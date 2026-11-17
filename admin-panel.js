@@ -7,8 +7,8 @@
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
  const byId=id=>document.getElementById(id);
  const roles={director:'Diretoria',admin:'Administrador',moderator:'Moderador',spectator:'Espectador'};
- const labels={overview:'Visão geral',series:'Séries e projetos',episodes:'Temporadas e episódios',comments:'Moderação',users:'Usuários e cargos',settings:'Configurações'};
- const nav=[['overview','layout-dashboard','◈'],['series','clapperboard','▣'],['episodes','list-video','▤'],['comments','message-square','☏'],['users','users','♙'],['settings','settings','⚙']];
+ const labels={overview:'Visão geral',home:'Página inicial',series:'Séries e projetos',episodes:'Temporadas e episódios',credits:'Elenco e créditos',comments:'Moderação',reports:'Denúncias',audit:'Histórico de alterações',analytics:'Estatísticas',users:'Usuários e cargos',settings:'Configurações'};
+ const nav=[['overview','layout-dashboard','◈'],['home','images','▧'],['series','clapperboard','▣'],['episodes','list-video','▤'],['credits','users-round','♬'],['comments','message-square','☏'],['reports','flag','⚑'],['audit','history','◷'],['analytics','chart-no-axes-column','▥'],['users','users','♙'],['settings','settings','⚙']];
  let client=null,actor=null,role='spectator',opened=false,tab='overview',sequence=0,loading=false;
  let series=[],seasons=[],episodes=[],comments=[],people=[],lastFocus=null;
  let seasonFilter='',commentFilter='pending',seriesFilter='all',usersQuery='';
@@ -42,7 +42,7 @@
  };
  function shell(){
   const available=nav.filter(([id])=>id!=='users'||onlyDirector())
-    .filter(([id])=>!['series','episodes'].includes(id)||editorial());
+    .filter(([id])=>!['series','episodes','home','credits','audit','analytics'].includes(id)||editorial());
   return '<div class="dw-bo-modal" id="dw-backoffice" role="dialog" aria-modal="true" aria-label="Painel administrativo DubWorks Play">'
     +'<div class="dw-bo-shell"><aside class="dw-bo-sidebar">'
     +'<div class="dw-bo-brand"><span class="dw-bo-brand-mark">▶</span><div><strong>DubWorks <em>PLAY</em></strong><small>CENTRAL ADMINISTRATIVA</small></div></div>'
@@ -71,7 +71,7 @@
      await currentRole();
    }catch(err){window.alert(err?.message||'Não foi possível abrir o painel.');return}
    tab=(requested==='users'&&!onlyDirector())?'overview':labels[requested]?requested:'overview';
-   if(!editorial()&&['series','episodes'].includes(tab))tab='comments';
+   if(!editorial()&&['series','episodes','home','credits','audit','analytics'].includes(tab))tab='comments';
    lastFocus=document.activeElement;
    document.body.insertAdjacentHTML('beforeend',shell());
    opened=true;
@@ -92,7 +92,7 @@
    lastFocus?.focus?.();
  }
  function allowed(next){
-   return !!labels[next]&&(next!=='users'||onlyDirector())&&(!['series','episodes'].includes(next)||editorial());
+   return !!labels[next]&&(next!=='users'||onlyDirector())&&(!['series','episodes','home','credits','audit','analytics'].includes(next)||editorial());
  }
  async function navigate(next){
    if(!opened||!allowed(next))return;
@@ -112,6 +112,10 @@
      if(next==='comments')await loadComments(ticket);
      if(next==='users')await loadUsers(ticket);
      if(next==='settings')loadSettings(ticket);
+     if(['home','credits','reports','audit','analytics'].includes(next)){
+       if(!window.DWAdminExtras?.load)throw Error('O módulo administrativo ainda não carregou.');
+       await window.DWAdminExtras.load(next,{client,role,actor,ticket,check:()=>inPage(ticket),content,toast,navigate});
+     }
    }catch(error){
      console.error('DubWorks Play: painel',error);
      if(ticket===sequence&&opened)content().innerHTML='<div class="dw-bo-error"><h2>Não foi possível carregar esta área.</h2><p>'+esc(error?.message||'Verifique a conexão.')+'</p><button data-bo-refresh="true">Tentar novamente</button></div>';
@@ -411,6 +415,7 @@
   if(!button)return;
   try{
    if(button.dataset.boClose!==undefined){close();return}
+   if(window.DWAdminExtras?.onClick&&await window.DWAdminExtras.onClick(button,{client,role,actor,toast,refresh:()=>navigate(tab),content}))return;
    if(button.dataset.boTab){await navigate(button.dataset.boTab);return}
    if(button.dataset.boRefresh!==undefined){await navigate(tab);return}
    if(button.dataset.boNewSeries!==undefined){openSeriesEditor();return}
@@ -436,6 +441,17 @@
  }
  async function onSubmit(event){
    const form=event.target;
+   if(window.DWAdminExtras?.formIds?.includes(form?.id)){
+     event.preventDefault();
+     if(loading)return;
+     loading=true;
+     const btn=form.querySelector('button[type=submit]');
+     if(btn)btn.disabled=true;
+     try{await window.DWAdminExtras.onSubmit(form,{client,role,actor,toast,refresh:()=>navigate(tab),content})}
+     catch(error){console.error('DubWorks Play:',error);toast(error?.message||'Não foi possível salvar.',true)}
+     finally{loading=false;if(btn?.isConnected)btn.disabled=false}
+     return;
+   }
    if(!['dw-bo-series-form','dw-bo-season-form'].includes(form?.id))return;
    event.preventDefault();
    if(loading)return;
@@ -449,9 +465,11 @@
    finally{loading=false;if(btn?.isConnected)btn.disabled=false}
  }
  function onChange(e){
+   if(window.DWAdminExtras?.onChange?.(e,{client,role,actor,toast,refresh:()=>navigate(tab),content}))return;
    if(e.target.id==='dw-bo-season-filter'){seasonFilter=e.target.value;drawEpisodes()}
  }
  function onInput(e){
+   if(window.DWAdminExtras?.onInput?.(e,{client,role,actor,toast,refresh:()=>navigate(tab),content}))return;
    if(e.target.id==='dw-bo-users-search'){
      usersQuery=e.target.value;
      const cursor=usersQuery.length;
