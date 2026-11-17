@@ -162,9 +162,11 @@
     renderAccount();
     // Apenas uma alteração de cargo precisa atualizar os controles da página.
     // Revalidar o mesmo cargo não deve reconstruir a tela da série.
-    if(previousRole!==role)app()?.refreshEditorControls?.();
-    window.DWEngagement?.renderComments?.();
-    window.DWFeatures?.refreshViewer?.();
+    if(previousRole!==role){
+      app()?.refreshEditorControls?.();
+      window.DWEngagement?.renderComments?.();
+      window.DWFeatures?.refreshViewer?.();
+    }
   }
   async function refreshAccount(authEvent=null){
     if(!api)return;
