@@ -33,28 +33,19 @@ const consent=()=>{try{return localStorage.getItem('dw-play-stats-consent')||''}
 function setConsent(val){
  if(!['yes','no'].includes(val))return;
  try{localStorage.setItem('dw-play-stats-consent',val)}catch{}
- el('dw-privacy-dialog')?.remove();
- alertMsg('Sua preferência de privacidade foi salva.');
+ el('dw-cookie-prompt')?.remove();
 }
-// Sem pop-up automático: o catálogo é livre para explorar, e estatísticas
-// opcionais permanecem DESATIVADAS até que o visitante as autorize.
-function consentDialog(){
- el('dw-privacy-dialog')?.remove();
+function renderCookiePrompt(force=false){
+ el('dw-cookie-prompt')?.remove();
+ if(!force&&consent())return;
  document.body.insertAdjacentHTML('beforeend',
-  '<div id="dw-privacy-dialog" class="dw-privacy-overlay" role="dialog" aria-modal="true" aria-labelledby="dw-privacy-title">'
-  +'<section class="dw-privacy-card"><header><div><span>✦ DUBWORKS PLAY</span>'
-  +'<h2 id="dw-privacy-title">Preferências de privacidade</h2></div>'
-  +'<button type="button" data-dw-privacy-close="true" aria-label="Fechar configurações">✕</button></header>'
-  +'<p>Escolha se deseja ajudar a melhorar a plataforma com estatísticas anônimas de navegação. '
-  +'Você pode alterar esta opção quando quiser.</p>'
-  +'<label class="dw-privacy-switch"><span><strong>Estatísticas opcionais</strong>'
-  +'<small>Contagem de aberturas de séries e episódios, sem associar os eventos à sua conta.</small></span>'
-  +'<input type="checkbox" id="dw-privacy-toggle" '+(consent()==='yes'?'checked':'')+'>'
-  +'<span class="dw-switch-track" aria-hidden="true"></span></label>'
-  +'<div class="dw-privacy-card-actions"><a href="./privacy.html">Ler política de privacidade</a>'
-  +'<button type="button" data-dw-privacy-save="true">Salvar preferência</button></div></section></div>');
- el('dw-privacy-toggle')?.focus();
+  '<div id="dw-cookie-prompt" class="dw-cookie-prompt" role="region" aria-label="Permissão de cookies">'
+  +'<span class="dw-cookie-label">🍪 Você permite cookies?</span>'
+  +'<div class="dw-cookie-buttons"><button type="button" data-dw-cookie-consent="no">Não permitir</button>'
+  +'<button type="button" data-dw-cookie-consent="yes">Permitir</button></div>'
+  +'</div>');
 }
+function consentDialog(){renderCookiePrompt(true)}
 function onceKey(type,slug,epid){
  const path=slug||epid||'site';
  return 'dw-visit:'+type+':'+path+':'+(epid||'');
@@ -272,11 +263,7 @@ document.addEventListener('click',async event=>{
   }
   if(btn.dataset.dwReportComment){openReport(btn.dataset.dwReportComment);return}
   if(btn.dataset.dwCloseReport!==undefined){el('dw-report-modal')?.remove();return}
-  if(btn.dataset.dwPrivacySave!==undefined){
-    setConsent(el('dw-privacy-toggle')?.checked?'yes':'no');
-    return;
-  }
-  if(btn.dataset.dwPrivacyClose!==undefined){el('dw-privacy-dialog')?.remove();return}
+  if(btn.dataset.dwCookieConsent!==undefined){setConsent(btn.dataset.dwCookieConsent);return}
   if(btn.dataset.dwPrivacySettings!==undefined){consentDialog();return}
  }catch(error){console.error('DubWorks Play:',error);alertMsg(error?.message||'Não foi possível executar esta ação.')}
 });
@@ -292,9 +279,10 @@ document.addEventListener('keydown',event=>{
  if(event.key!=='Escape')return;
  el('dw-history-modal')?.remove();
  el('dw-report-modal')?.remove();
- el('dw-privacy-dialog')?.remove();
+ el('dw-cookie-prompt')?.remove();
 });
 window.DWFeatures={refreshHome,renderEpisode,renderProjectCredits,refreshViewer,track,showHistory,finishEpisode,syncTime,openReport,changeStatsPreference:consentDialog};
+renderCookiePrompt();
 api().then(async()=>{
   try{
     await refreshHome();
