@@ -142,6 +142,7 @@
   async function refreshRole(){
     if(!api||!user)return;
     const accountId=user.id, expected=epoch;
+    const previousRole=role;
     try{
       const {data:profile,error}=await api.from('profiles')
         .select('display_name,role').eq('user_id',accountId).maybeSingle();
@@ -159,7 +160,9 @@
       role='unavailable';
     }
     renderAccount();
-    app()?.refreshEditorControls?.();
+    // Apenas uma alteração de cargo precisa atualizar os controles da página.
+    // Revalidar o mesmo cargo não deve reconstruir a tela da série.
+    if(previousRole!==role)app()?.refreshEditorControls?.();
     window.DWEngagement?.renderComments?.();
     window.DWFeatures?.refreshViewer?.();
   }
