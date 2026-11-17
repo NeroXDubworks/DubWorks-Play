@@ -169,7 +169,7 @@ function drawReports(ctx){
 }
 async function loadAudit(ctx){
  const {data,error}=await ctx.client.from('audit_events')
- .select('id,actor_id,entity_type,entity_id,operation,summary,created_at').order('created_at',{ascending:false}).limit(150);
+ .select('id,actor_id,actor_name,entity_type,entity_id,operation,summary,created_at').order('created_at',{ascending:false}).limit(150);
  if(error)throw error;
  audit=data||[];
  if(!ctx.check())return;
@@ -181,7 +181,7 @@ async function loadAudit(ctx){
    x(labels[row.entity_type?.split('.')[1]]||row.entity_type)+'</strong>'
    +'<small>'+x(row.operation==='INSERT'?'Cadastrado':row.operation==='UPDATE'?'Alterado':'Excluído')+
    ' · '+x(row.summary||'Registro')+'</small></div><div class="dw-suite-audit-meta"><time>'+x(formatDate(row.created_at))+'</time><small>'+
-   (row.actor_id?'Usuário '+x(row.actor_id.slice(0,8))+'…':'Sistema')+'</small></div></div>').join('')
+   (row.actor_name?x(row.actor_name):(row.actor_id?'Usuário da equipe':'Sistema'))+'</small></div></div>').join('')
    :msg('As próximas alterações administrativas serão registradas aqui.'))+'</div>'
   +'<p class="dw-bo-footnote">O histórico começa a contar a partir da ativação desta funcionalidade e não inclui o conteúdo integral dos comentários nem chaves do Google Drive.</p>';
 }
