@@ -85,7 +85,7 @@
         +'<div class="dw-comment-form-footer"><span>Respeite os demais participantes. Seu comentário será analisado antes de aparecer para todos.</span>'
         +'<button type="submit">Publicar comentário</button></div></form>'
         :'<div class="dw-comments-login"><strong>Quer participar da conversa?</strong>'
-        +'<p>Entre com sua conta Google para comentar. Assistir continua sendo gratuito e sem login.</p>'
+        +'<p>Entre com sua conta Google para comentar e assistir aos episódios.</p>'
         +'<button type="button" data-comment-login="true">Entrar com Google</button></div>')
       +(staff&&comments.some(c=>c.status==='pending')?'<p class="dw-moderation-note">⚑ Há comentários aguardando moderação.</p>':'')
       +renderRows(comments,user?.id,staff)
