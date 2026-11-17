@@ -595,6 +595,20 @@
         published:isReleased(e)};
     },
     applyPublishedEpisodes(rows,metadata){
+      // Uma revalidação idêntica do catálogo não deve apagar a aba aberta,
+      // comentários digitados, rolagem ou um iframe em reprodução.
+      const catalogueFingerprint=()=>JSON.stringify(projects.map(p=>({
+        id:p.id,title:p.title,description:p.description,kind:p.kind,genre:p.genre,
+        status:p.status,image:p.image,visible:p.catalogVisible,age:p.ageRating,
+        year:p.releaseYear,
+        episodes:p.episodes.map(e=>({
+          dbId:e.dbId,number:e.number,season:e.season,name:e.name,status:e.status,
+          published:e.published,mediaProvider:e.mediaProvider,
+          driveFileId:e.driveFileId,videoUrl:e.videoUrl,
+          durationSeconds:e.durationSeconds,description:e.description,thumbnailUrl:e.thumbnailUrl
+        }))
+      })));
+      const beforeCatalog=catalogueFingerprint();
       // Se uma URL de episódio é aberta diretamente antes da consulta ao Supabase,
       // atualizar o player quando o registro publicado finalmente chegar.
       const activeBefore=playerEpisode?episodeFor(
@@ -641,6 +655,7 @@
         }
         p.episodes=[...merged.values()].sort((a,b)=>seasonNumber(a)-seasonNumber(b)||Number(a.number)-Number(b.number));
       }
+      const catalogChanged=beforeCatalog!==catalogueFingerprint();
       if(currentProjectId&&projects.find(p=>p.id===currentProjectId)?.catalogVisible===false){
         playerEpisode=null;currentProjectId=null;
         navigate('catalogo');return;
@@ -651,7 +666,8 @@
           syncRoute();
           return;
         }
-        render();return;
+        if(catalogChanged)render();
+        return;
       }
       const activeAfter=episodeFor(
         projects.find(p=>p.id===playerEpisode.projectId),playerEpisode.season,playerEpisode.number);
