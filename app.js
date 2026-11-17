@@ -56,6 +56,10 @@
     : '';
   const isPlayable = e => Boolean(e && e.published===true &&
     (e.mediaProvider==='google_drive'?validDriveId(e.driveFileId):validMediaUrl(e.videoUrl)));
+  // O lançamento do episódio é público, mas o endereço do vídeo só é fornecido
+  // a uma sessão Google autenticada. Não confundir publicado com reproduzível.
+  const isReleased = e => Boolean(e && e.published===true && e.dbId);
+  const isPlaybackSignedIn = () => Boolean(window.DWAuth?.isSignedIn?.());
   const progressKey = (project,season,episode) => 'dw-play-progress:'+project+':'+season+':'+episode;
   const getProgress = (project,season,episode) => {
     try {const x=Number(localStorage.getItem(progressKey(project,season,episode)));return Number.isFinite(x)&&x>0?x:0;}
@@ -148,7 +152,7 @@
       :'';
     const episodeCards=listed.length
       ?listed.map(e=>{
-        const ready=isPlayable(e);
+        const ready=isReleased(e);
         const previous=e.mediaProvider==='google_drive'?0:getProgress(p.id,seasonNumber(e),e.number);
         return '<article class="detail-episode">'
           +'<div class="episode-cover" style="background-image:'+safe(getImage(p))+'"><span class="episode-index">T'+seasonNumber(e)+' · EP '+safe(e.number)+'</span></div>'
@@ -184,7 +188,7 @@
       detalhes:information
     };
     const favoriteLabel=saved.has(p.id)?'✓ Na minha lista':'＋ Minha lista';
-    const firstReady=p.episodes.find(isPlayable);
+    const firstReady=p.episodes.find(isReleased);
     const heroButton=firstReady
       ?'<button class="btn btn-primary" data-episode="'+safe(p.id)+':'+seasonNumber(firstReady)+':'+safe(firstReady.number)+'">▶ Assistir agora</button>'
       :'<button class="btn btn-primary" data-scroll-episodes="true">▶ Ver episódios</button>';
@@ -238,6 +242,10 @@
     const e=episodeFor(p,state.season,state.number);
     if(!p||!e){playerEpisode=null;currentProjectId=null;navigate('inicio');return}
     const ready=isPlayable(e);
+    const released=isReleased(e);
+    const signedIn=isPlaybackSignedIn();
+    const needsLogin=!signedIn&&released;
+    const canPlay=ready&&signedIn;
     const seasons=availableSeasons(p);
     const currentEpisodes=episodesInSeason(p,state.season);
     const position=currentEpisodes.findIndex(q=>Number(q.number)===state.number);
@@ -250,14 +258,30 @@
         +'</select></label>'
       :'';
     const poster=validMediaUrl(e.posterUrl)?e.posterUrl:(validMediaUrl(p.image)?p.image:'');
-    const isDrive=ready&&e.mediaProvider==='google_drive';
-    const media=isDrive
+    const isDrive=canPlay&&e.mediaProvider==='google_drive';
+    const media=needsLogin
+      ?'<div class="dw-play-login-gate" style="background-image:'+safe(getImage(p))+'">'
+        +'<div class="dw-play-login-shade"></div>'
+        +'<div class="dw-play-login-card"><div class="dw-play-login-badge">✦ DUBWORKS PLAY</div>'
+        +'<div class="dw-play-login-lock" aria-hidden="true">♧</div>'
+        +'<h2>Entre para assistir</h2>'
+        +'<p>Faça login com sua conta Google para reproduzir <strong>'+safe(e.name)+'</strong>.</p>'
+        +'<button type="button" class="dw-play-login-button" data-play-login="true">'
+        +'<span class="dw-google-g">G</span> Entrar com Google</button>'
+        +'<small>O catálogo continua aberto para explorar.</small>'
+        +'</div></div>'
+      :isDrive
       ?'<div class="dw-drive-embed dw-drive-embed--watch"><iframe id="dw-drive-frame" class="dw-drive-frame" title="Reproduzir '+safe(e.name)+' pelo Google Drive" src="'+safe(drivePreviewUrl(e))+'" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" allow="autoplay; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe><span class="dw-drive-corner-shield" aria-hidden="true"></span></div>'
-      :ready
+      :canPlay
         ?'<video id="dw-episode-video" class="watch-video" controls playsinline preload="metadata"'
           +(poster?' poster="'+safe(poster)+'"':'')+' src="'+safe(e.videoUrl)+'">'
           +(validMediaUrl(e.captionsUrl)?'<track kind="subtitles" src="'+safe(e.captionsUrl)+'" srclang="pt-BR" label="Português" default>':'')
           +'Seu navegador não suporta a reprodução deste vídeo.</video>'
+        :signedIn&&released
+          ?'<div class="watch-empty-art" style="background-image:'+safe(getImage(p))+'"></div>'
+            +'<div class="watch-unavailable dw-play-loading"><span class="watch-glass-label">DUBWORKS PLAY</span>'
+            +'<span class="watch-unavailable-icon" aria-hidden="true">◌</span>'
+            +'<h2>Preparando reprodução...</h2><p>Conferindo sua sessão e carregando o vídeo.</p></div>'
         :'<div class="watch-empty-art" style="background-image:'+safe(getImage(p))+'"></div>'
           +'<div class="watch-unavailable"><span class="watch-glass-label">DUBWORKS PLAY</span>'
           +'<span class="watch-unavailable-icon" aria-hidden="true">▷</span>'
@@ -280,16 +304,17 @@
       +'<p class="watch-summary">'+safe(e.description||p.description)+'</p></div>'
       +'<div class="watch-buttons">'
       +'<button class="watch-button" data-player-back="true">Voltar à série</button>'
-      +(ready?'<button class="watch-button" data-fullscreen="true">⛶ Tela cheia</button>':'')
+      +(canPlay?'<button class="watch-button" data-fullscreen="true">⛶ Tela cheia</button>':'')
       +editEpisodeButton(p.id,state.season,state.number)
       +(previous?'<button class="watch-button" data-episode="'+safe(p.id)+':'+state.season+':'+safe(previous.number)+'">← Anterior</button>':'')
       +(next?'<button class="watch-button watch-button-primary" data-episode="'+safe(p.id)+':'+state.season+':'+safe(next.number)+'">Próximo episódio →</button>':'')
       +'</div></section>'
       +'<div class="watch-toolbar">'
       +seasonMenu
-      +(isDrive?'<button class="watch-button dw-show-suggestions" data-show-end="true">✓ Terminei • Ver sugestões</button><span class="dw-drive-warning">O Google Drive não informa quando o vídeo termina. Use “Terminei” para abrir as sugestões.</span>'
+      +(needsLogin?'<span class="dw-drive-warning">Entre com Google para liberar a reprodução do episódio.</span>'
+        :isDrive?'<button class="watch-button dw-show-suggestions" data-show-end="true">✓ Terminei • Ver sugestões</button><span class="dw-drive-warning">O Google Drive não informa quando o vídeo termina. Use “Terminei” para abrir as sugestões.</span>'
 
-        :ready?'<label for="dw-speed-select">Velocidade <select id="dw-speed-select"><option value="0.75">0,75×</option><option value="1" selected>Normal (1×)</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>'
+        :canPlay?'<label for="dw-speed-select">Velocidade <select id="dw-speed-select"><option value="0.75">0,75×</option><option value="1" selected>Normal (1×)</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>'
           +'<button class="watch-button" data-pip="true">▣ Mini player</button>'
           +(progress>10?'<span class="watch-resume">Retomar em '+formatClock(progress)+'</span>':'')
           :'<span class="watch-toolbar-note">Quando um vídeo autorizado for cadastrado, a reprodução aparecerá aqui.</span>')
@@ -302,7 +327,7 @@
       +'<section id="dw-episode-comments" class="dw-episode-comments" aria-label="Comentários do episódio"><h2>Comentários</h2><p>Carregando comentários...</p></section>'
       +'<p class="watch-rights">Reprodução restrita a arquivos com autorização de exibição. Download offline ainda não está habilitado.</p>'
       +'</div></div>';
-    if(ready&&!isDrive)wirePlayer(state);
+    if(canPlay&&!isDrive)wirePlayer(state);
     if(window.DWEngagement?.renderComments)window.DWEngagement.renderComments();
     window.DWFeatures?.renderEpisode?.();
   }
@@ -422,8 +447,9 @@
     render();window.scrollTo({top:0,behavior:'instant'});
   }
   document.addEventListener('click',e=>{
-    const n=e.target.closest('[data-close],[data-open],[data-back],[data-player-back],[data-episode],[data-fullscreen],[data-pip],[data-favorite],[data-view],[data-filter],[data-hero],[data-hero-to],[data-tab],[data-scroll-episodes],[data-watch],[data-edit-episode],[data-edit-series],[data-show-end],[data-close-end]');
+    const n=e.target.closest('[data-play-login],[data-close],[data-open],[data-back],[data-player-back],[data-episode],[data-fullscreen],[data-pip],[data-favorite],[data-view],[data-filter],[data-hero],[data-hero-to],[data-tab],[data-scroll-episodes],[data-watch],[data-edit-episode],[data-edit-series],[data-show-end],[data-close-end]');
     if(!n)return;
+    if(n.dataset.playLogin!==undefined){window.DWAuth?.login?.();return}
     if(n.dataset.showEnd){showEndScreen();return}
     if(n.dataset.closeEnd){hideEndScreen();return}
     if(n.dataset.editEpisode){
@@ -503,6 +529,11 @@
     document.querySelectorAll('.card-touched').forEach(el=>el.classList.remove('card-touched'));
   });
   window.DubWorksPlay={
+    refreshPlaybackGate(){
+      // Substitui imediatamente um iframe/vídeo por login ao sair da conta.
+      if(playerEpisode)renderPlayer();
+      else if(currentProjectId)renderProjectDetail();
+    },
     applyCloudPlaybackPosition(seconds){
       const video=document.getElementById('dw-episode-video');
       if(!video||!Number.isFinite(seconds)||seconds<10)return;
