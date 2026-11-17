@@ -271,6 +271,9 @@ const api={
       creditsByEpisode(ctx,selectedEpisode).then(()=>drawCredits(ctx)).catch(error=>ctx.toast(error.message,true));
       return true;
    }
+   if(e.target.matches?.('[name^="row-filter-"]')){
+      fromForm();drawHome(ctx);return true;
+   }
    return false;
  },
  onInput(){return false}
