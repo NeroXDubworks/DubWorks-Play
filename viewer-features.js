@@ -285,6 +285,15 @@ document.addEventListener('keydown',event=>{
 });
 window.DWFeatures={refreshHome,renderEpisode,renderProjectCredits,refreshViewer,track,showHistory,finishEpisode,syncTime,openReport,changeStatsPreference:consentDialog};
 renderConsent();
-api().then(async()=>{try{await refreshHome();await refreshViewer()}catch(error){console.warn('DubWorks Play extras',error)}})
+api().then(async()=>{
+  try{
+    await refreshHome();
+    await refreshViewer();
+    if(el('dw-project-credits')){
+      const route=String(window.location.hash||'').replace(/^#projeto\//,'');
+      if(route)renderProjectCredits(decodeURIComponent(route)).catch(console.warn);
+    }
+  }catch(error){console.warn('DubWorks Play extras',error)}
+})
  .catch(error=>console.warn('DubWorks Play: serviço de recursos extras indisponível',error));
 })();
