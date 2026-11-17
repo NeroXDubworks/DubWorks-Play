@@ -33,6 +33,24 @@ As permissões são persistidas em `app_private.user_roles`, fora da API públic
 
 Os e-mails vinculados às contas ficam visíveis somente ao próprio usuário e à Diretoria, conforme RLS.
 
+## Pacote de funções da comunidade (novembro de 2026)
+
+A integração do DubWorks Play inclui:
+
+- **Página inicial administrável:** menu **Painel administrativo → Página inicial**, com três destaques, fileiras personalizadas, ordem, visibilidade e seleção de projetos. Configurações salvas em `home_layout` e aplicadas à página inicial sem alterar código.
+- **Créditos e elenco:** cadastre nome de exibição, personagem, função, ordem e visibilidade em **Painel → Elenco e créditos**. Os créditos públicos aparecem na aba **Elenco** do projeto e na página do episódio.
+- **Denúncias:** usuários com Google podem denunciar comentários aprovados. As denúncias ficam privadas na tabela `comment_reports` e aparecem para Diretoria, Administração e Moderadores em **Painel → Denúncias**.
+- **Auditoria:** alterações de séries, temporadas, episódios, créditos, página inicial, moderação e cargos geram registros em `audit_events`. Os registros começam a contar a partir da implantação. Não armazenamos o conteúdo integral dos comentários nem chaves do Drive na auditoria.
+- **Curtidas e histórico:** os espectadores logados podem curtir, marcar como assistido e abrir **Histórico de episódios** no menu do perfil. Curtidas ficam em `episode_likes` e são expostas ao público apenas em contagens agregadas na tabela `episode_like_counts`. O histórico individual fica em `watch_progress` com RLS.
+- **Estatísticas optativas:** a plataforma pede permissão antes de registrar eventos anônimos de navegação em `site_events`. O painel mostra eventos dos últimos 30 dias e a quantidade total de curtidas. Não são métricas de espectadores únicos, nem minutos efetivamente vistos no Drive.
+- **Política de privacidade e termos de uso:** páginas públicas `privacy.html` e `terms.html`, disponíveis no rodapé. A pessoa pode alterar a preferência de estatísticas a qualquer momento em **Preferências de privacidade**.
+
+### Regras de divulgação
+
+A interação com o Google é opcional. O perfil do espectador nunca concede acesso ao Drive administrativo. Para vídeos do Google Drive, **não há como saber automaticamente o minuto assistido ou o término**, por isso a conclusão é uma marcação manual. Para vídeos HTML5 externos compatíveis, o tempo pode ser atualizado na conta. O evento de finalização de vídeo HTML5 também abre a tela de recomendações.
+
+As páginas de Termos e Privacidade são versões iniciais operacionais. **Solicite revisão jurídica antes de divulgação ampla**, sobretudo quanto a direitos autorais e obrigações da LGPD.
+
 ## Publicar episódio usando o Google Drive
 
 1. Finalize e exporte o episódio em um formato aceito pelo Google Drive, como MP4.
