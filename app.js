@@ -138,7 +138,7 @@
   const editEpisodeButton=(id,season,number,label='✎ Editar episódio')=>canEdit()
     ?'<button type="button" class="dw-edit-action" data-edit-episode="'+safe(id)+':'+Number(season)+':'+Number(number)+'">'+label+'</button>'
     :'';
-  function renderProjectDetail(){
+  function renderProjectDetail(panelOnly=false){
     const p=projects.find(q=>q.id===currentProjectId);
     if(!p||p.catalogVisible===false){currentProjectId=null;navigate('catalogo');return}
     const related=projects.filter(q=>q.catalogVisible!==false&&q.id!==p.id&&q.kind===p.kind).slice(0,5);
@@ -192,6 +192,21 @@
     const heroButton=firstReady
       ?'<button class="btn btn-primary" data-episode="'+safe(p.id)+':'+seasonNumber(firstReady)+':'+safe(firstReady.number)+'">▶ Assistir agora</button>'
       :'<button class="btn btn-primary" data-scroll-episodes="true">▶ Ver episódios</button>';
+    const tabMarkup=(contentByTab[detailsTab]||contentByTab.episodios)
+      +'<p class="detail-rights">A liberação de episódios completos e downloads depende da autorização de exibição e distribuição dos titulares.</p>';
+    const existingPanel=panelOnly?document.querySelector('.detail-page .detail-panel'):null;
+    if(existingPanel){
+      // Mudanças de abas trocam apenas o painel, sem reconstruir a capa ou
+      // mover a página para o topo. O player (em outra rota) fica intocado.
+      existingPanel.innerHTML=tabMarkup;
+      document.querySelectorAll('.detail-tabs [data-tab]').forEach(button=>{
+        const active=button.dataset.tab===detailsTab;
+        button.classList.toggle('active',active);
+        button.setAttribute('aria-selected',String(active));
+      });
+      if(detailsTab==='elenco')window.DWFeatures?.renderProjectCredits?.(p.id);
+      return;
+    }
     main.innerHTML='<div class="detail-page detail-page--catalog-only">'
       +'<section class="detail-hero" aria-label="Página de '+safe(p.title)+'">'
       +'<div class="detail-art" style="background-image:'+safe(getImage(p))+'"></div>'
@@ -214,8 +229,7 @@
           return '<button type="button" role="tab" aria-selected="'+(detailsTab===t)+'" class="'+(detailsTab===t?'active':'')+'" data-tab="'+t+'">'+label+'</button>';
         }).join('')
       +'</div><section class="detail-panel" id="episodios" role="tabpanel">'
-      +(contentByTab[detailsTab]||contentByTab.episodios)
-      +'<p class="detail-rights">A liberação de episódios completos e downloads depende da autorização de exibição e distribuição dos titulares.</p>'
+      +tabMarkup
       +'</section></div></div>';
     if(detailsTab==='elenco')window.DWFeatures?.renderProjectCredits?.(p.id);
   }
@@ -488,8 +502,19 @@
     if(n.dataset.filter){filter=n.dataset.filter;render();return}
     if(n.dataset.hero){const count=heroProjects.filter(p=>p.catalogVisible!==false).length||projects.filter(p=>p.catalogVisible!==false).length||1;heroIndex=(heroIndex+(n.dataset.hero==='next'?1:count-1))%count;render();return}
     if(n.dataset.heroTo){heroIndex=Number(n.dataset.heroTo);render();return}
-    if(n.dataset.tab){detailsTab=n.dataset.tab;renderProjectDetail();return}
-    if(n.dataset.scrollEpisodes){detailsTab='episodios';renderProjectDetail();document.querySelector('.detail-tabs')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+    if(n.dataset.tab){
+      const tab=n.dataset.tab;
+      if(!['episodios','sugestoes','elenco','extras','detalhes'].includes(tab)||tab===detailsTab)return;
+      detailsTab=tab;
+      renderProjectDetail(true);
+      return;
+    }
+    if(n.dataset.scrollEpisodes){
+      detailsTab='episodios';
+      renderProjectDetail(true);
+      document.querySelector('.detail-tabs')?.scrollIntoView({behavior:'smooth',block:'start'});
+      return;
+    }
   });
   document.addEventListener('change',e=>{
     const target=e.target;
