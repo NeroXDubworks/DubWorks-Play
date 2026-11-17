@@ -187,12 +187,13 @@ async function loadAudit(ctx){
 }
 async function loadAnalytics(ctx){
  const since=new Date(Date.now()-30*86400000).toISOString();
- const [eventsRes,likesRes,seriesRes]=await Promise.all([
+ const [eventsRes,likesRes,seriesRes,commentsRes]=await Promise.all([
    ctx.client.from('site_events').select('event_type,series_id,created_at').gte('created_at',since).order('created_at',{ascending:false}).limit(4000),
    ctx.client.from('episode_like_counts').select('episode_id,likes_count'),
-   ctx.client.from('series').select('id,title')
+   ctx.client.from('series').select('id,title'),
+   ctx.client.from('comments').select('id',{head:true,count:'exact'}).eq('status','approved')
  ]);
- for(const r of [eventsRes,likesRes,seriesRes])if(r.error)throw r.error;
+ for(const r of [eventsRes,likesRes,seriesRes,commentsRes])if(r.error)throw r.error;
  events=eventsRes.data||[];
  const seriesName=new Map((seriesRes.data||[]).map(s=>[s.id,s.title]));
  const metrics=[
@@ -211,7 +212,8 @@ async function loadAnalytics(ctx){
  ctx.content().innerHTML=heading('Estatísticas reais','Eventos registrados durante os últimos 30 dias. Não equivalem a espectadores únicos nem a visualizações confirmadas no Google Drive.')
  +'<div class="dw-bo-kpi-grid">'+metrics.map(([label,k,icon])=>'<div class="dw-bo-kpi"><span class="dw-bo-kpi-icon">'+icon+'</span>'
   +'<strong>'+x(counts[k]||0)+'</strong><span>'+x(label)+'</span></div>').join('')
-  +'<div class="dw-bo-kpi"><span class="dw-bo-kpi-icon">♡</span><strong>'+x(likes)+'</strong><span>Curtidas no catálogo</span></div></div>'
+  +'<div class="dw-bo-kpi"><span class="dw-bo-kpi-icon">♡</span><strong>'+x(likes)+'</strong><span>Curtidas no catálogo</span></div>'
+  +'<div class="dw-bo-kpi"><span class="dw-bo-kpi-icon">☏</span><strong>'+x(commentsRes.count||0)+'</strong><span>Comentários aprovados (total)</span></div></div>'
  +'<section class="dw-suite-panel"><h3>Projetos mais abertos</h3><p>Eventos de navegação de pessoas que aceitaram as estatísticas anônimas.</p>'
  +(items.length?items.map(([id,count])=>'<div class="dw-suite-barrow"><span>'+x(seriesName.get(id)||'Projeto')+'</span>'
    +'<div><span style="width:'+Math.max(5,Math.round(count/max*100))+'%"></span></div><strong>'+count+'</strong></div>').join('')
