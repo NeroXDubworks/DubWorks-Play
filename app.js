@@ -118,7 +118,7 @@
   function toggleFavorite(id){
     const wasSaved=saved.has(id);
     if(wasSaved){saved.delete(id);showToast('Removido da sua lista.')}
-    else{saved.add(id);showToast('Adicionado à sua lista!')}
+    else{saved.add(id);showToast('Adicionado à sua lista!');window.DWFeatures?.track?.('favorite_added',id)}
     const auth=window.DWAuth;
     if(auth?.isSignedIn()){
       Promise.resolve(auth.syncFavorite(id,!wasSaved)).catch(()=>{
@@ -503,6 +503,18 @@
     document.querySelectorAll('.card-touched').forEach(el=>el.classList.remove('card-touched'));
   });
   window.DubWorksPlay={
+    applyCloudPlaybackPosition(seconds){
+      const video=document.getElementById('dw-episode-video');
+      if(!video||!Number.isFinite(seconds)||seconds<10)return;
+      // Apenas para HTML5; o player do Drive não revela a posição assistida.
+      const resume=()=>{
+        if(video.currentTime<2&&Number.isFinite(video.duration)&&seconds<video.duration-10){
+          video.currentTime=seconds;
+        }
+      };
+      if(video.readyState>=1)resume();
+      else video.addEventListener('loadedmetadata',resume,{once:true});
+    },
     applyHomeLayout(next){
       editorialHome=next&&Array.isArray(next.sections)?next:null;
       if(!currentProjectId&&!playerEpisode&&view==='inicio'&&!query)renderHome();
